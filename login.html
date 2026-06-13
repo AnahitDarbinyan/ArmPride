@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArmFighting Academy - Մուտք</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Armenian:wght@400;500;600;700;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#C41230;
+  --red-light:#E8304F;
+  --gold:#D4AF37;
+  --surface:#161616;
+  --surface2:#252525;
+  --border:#363636;
+  --text1:#F0F0F0;
+  --text2:#B0B0B0;
+}
+body{
+  font-family:'Noto Sans Armenian',sans-serif;
+  background:linear-gradient(135deg,#0A0A0A 0%,#1A1A1A 100%);
+  color:var(--text1);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.login-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:48px 40px;
+  width:440px;
+  max-width:95vw;
+  box-shadow:0 20px 60px rgba(0,0,0,.8), 0 0 0 1px rgba(196,18,48,.1);
+  position:relative;
+  overflow:hidden;
+}
+.login-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:4px;
+  background:linear-gradient(90deg,var(--red),var(--gold),var(--red));
+}
+.login-logo{
+  text-align:center;
+  margin-bottom:36px;
+}
+.login-logo h1{
+  font-family:'Oswald',sans-serif;
+  font-size:2rem;
+  letter-spacing:.05em;
+  color:#fff;
+  text-transform:uppercase;
+  line-height:1.2;
+}
+.login-logo p{
+  color:var(--red);
+  font-size:.85rem;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  margin-top:6px;
+}
+.field-label{
+  display:block;
+  font-size:.8rem;
+  font-weight:600;
+  color:var(--text2);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.login-input{
+  width:100%;
+  background:var(--surface2);
+  border:1.5px solid var(--border);
+  border-radius:8px;
+  padding:14px 16px;
+  color:var(--text1);
+  outline:none;
+  margin-bottom:20px;
+  font-size:1rem;
+  font-family:'Noto Sans Armenian',sans-serif;
+  transition:.2s border-color;
+}
+.login-input:focus{
+  border-color:var(--red);
+}
+.login-btn{
+  width:100%;
+  padding:15px;
+  background:var(--red);
+  border:none;
+  border-radius:8px;
+  color:#fff;
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  cursor:pointer;
+  font-size:1rem;
+  font-family:'Noto Sans Armenian',sans-serif;
+  transition:.2s background;
+  margin-top:4px;
+}
+.login-btn:hover:not(:disabled){
+  background:var(--red-light);
+}
+.login-btn:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+.login-error{
+  color:#ff6b6b;
+  text-align:center;
+  margin-top:14px;
+  min-height:20px;
+  font-size:.88rem;
+}
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="login-logo">
+    <h1>ArmFighting Academy</h1>
+    <p>Կառավারման Համakарgіr</p>
+  </div>
+
+  <label class="field-label" for="email">Էleктронayin Пост</label>
+  <input type="email" id="email" class="login-input" placeholder="your@email.com">
+
+  <label class="field-label" for="password">Gaghtnabарr</label>
+  <input type="password" id="password" class="login-input" placeholder="••••••••">
+
+  <button class="login-btn" id="login-btn" onclick="handleLogin()">Мутk Gorcel</button>
+  <div id="login-error" class="login-error"></div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://vzouzbybkbbaiupubfmj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6b3V6Ynlia2JiYWl1cHViZm1qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjE3MjksImV4cCI6MjA5NTc5NzcyOX0.fVuREjAgEPNDasy-dxZlq603ilZNOIgxFuAU9q_fqgE'
+);
+
+async function handleLogin() {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const errorDiv = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+
+  errorDiv.textContent = '';
+
+  if (!email || !password) {
+    errorDiv.textContent = 'Խндrum enk lrаcnel bolor dashtere';
+    return;
+  }
+
+  btn.textContent = 'Мутk...';
+  btn.disabled = true;
+
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    // Simple redirect — no popup, no new window
+    window.location.replace('index.html');
+  } catch (err) {
+    errorDiv.textContent = err.message || 'Skhаl mutk';
+    btn.textContent = 'Мутk Gorcel';
+    btn.disabled = false;
+  }
+}
+
+// Allow pressing Enter to log in
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+  });
+  document.getElementById('email').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+  });
+});
+
+// If already logged in, skip login page and go straight to dashboard
+(async () => {
+  const { data } = await sb.auth.getSession();
+  if (data.session) {
+    window.location.replace('index.html');
+  }
+})();
+</script>
+</body>
+</html>
