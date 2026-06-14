@@ -822,6 +822,18 @@ async function openCoachDetail(id) {
     c.doc3_url     ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${c.doc3_url}')">▤ Ayl Pastataght</button>` : '',
   ].join('');
 
+  const extraDocs = c.extra_docs || [];
+  const extraDocsHtml = extraDocs.length ? `
+    <div style="margin-top:10px;font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Փաստաթղթեր (${extraDocs.length})</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      ${extraDocs.map((url, i) => {
+        const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+        return isImg
+          ? `<img src="${url}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1.5px solid var(--border2);cursor:zoom-in" onclick="viewImage('${url}')">`
+          : `<button class="btn-secondary" style="font-size:11px;padding:6px 10px" onclick="viewImage('${url}')">▤ Doc ${i+1}</button>`;
+      }).join('')}
+    </div>` : '';
+
   content.innerHTML = `
   <div class="detail-layout">
     <div class="detail-sidebar">
@@ -837,6 +849,7 @@ async function openCoachDetail(id) {
         ${c.email         ? `<div class="detail-meta-item"><span class="detail-meta-key">El. Prost</span><span class="detail-meta-val">${c.email}</span></div>` : ''}
       </div>
       ${docBtns}
+      ${extraDocsHtml}
     </div>
     <div class="detail-main">
       <div class="detail-card">
@@ -862,9 +875,9 @@ async function editCurrentCoach() {
   let c = allCoaches.find(x => x.id === currentCoachId);
   if (!c) { const { data } = await sb.from('coaches').select('*').eq('id', currentCoachId).single(); c = data; }
   if (!c) return;
-  fillCoachForm(c);
   showPage('add-coach');
   document.getElementById('coach-form-title').textContent = 'Khmbagrel Мarзich';
+  fillCoachForm(c);
 }
 
 async function deleteCurrentCoach() {
@@ -1084,6 +1097,18 @@ async function openWorkerDetail(id) {
     w.doc2_url     ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${w.doc2_url}')">▤ Pastataght 2</button>` : '',
   ].join('');
 
+  const extraDocs = w.extra_docs || [];
+  const extraDocsHtml = extraDocs.length ? `
+    <div style="margin-top:10px;font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Փաստաթղթեր (${extraDocs.length})</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      ${extraDocs.map((url, i) => {
+        const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+        return isImg
+          ? `<img src="${url}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1.5px solid var(--border2);cursor:zoom-in" onclick="viewImage('${url}')">`
+          : `<button class="btn-secondary" style="font-size:11px;padding:6px 10px" onclick="viewImage('${url}')">▤ Doc ${i+1}</button>`;
+      }).join('')}
+    </div>` : '';
+
   content.innerHTML = `
   <div class="detail-layout">
     <div class="detail-sidebar">
@@ -1096,6 +1121,7 @@ async function openWorkerDetail(id) {
         ${w.salary ? `<div class="detail-meta-item"><span class="detail-meta-key">Ashkhatavarj</span><span class="detail-meta-val">${w.salary} ֏</span></div>` : ''}
       </div>
       ${docBtns}
+      ${extraDocsHtml}
     </div>
     <div class="detail-main">
       <div class="detail-card">
@@ -1122,9 +1148,9 @@ async function editCurrentWorker() {
   let w = allWorkers.find(x => x.id === currentWorkerId);
   if (!w) { const { data } = await sb.from('workers').select('*').eq('id', currentWorkerId).single(); w = data; }
   if (!w) return;
-  fillWorkerForm(w);
   showPage('add-worker');
   document.getElementById('worker-form-title').textContent = 'Khmbagrel Ashkhat';
+  fillWorkerForm(w);
 }
 
 async function loadWorkerForEdit(id) {
