@@ -413,28 +413,17 @@ async function openAthleteDetail(id) {
   const content = document.getElementById('athlete-detail-content');
   content.innerHTML = '<div class="loading"><div class="spinner"></div> Berrnum e...</div>';
 
-  const [{ data: a }, { data: ownComps }, { data: participantRows }] = await Promise.all([
+  const [{ data: a }, { data: partRows }] = await Promise.all([
     sb.from('athletes').select('*').eq('id', id).single(),
-    sb.from('competitions').select('*').eq('athlete_id', id).order('date', { ascending: false }),
-    sb.from('competition_participants').select('competitions(*)').eq('athlete_id', id)
+    sb.from('competition_participants')
+      .select('*, competitions(id, name, date, sport, location)')
+      .eq('athlete_id', id)
+      .order('created_at', { ascending: false })
   ]);
 
   if (!a) { content.innerHTML = '<p style="color:var(--text3)">Marzike chi gtnyel.</p>'; return; }
 
-  // Merge own competitions (athlete_id match) with ones where athlete is listed as participant
-  const participantComps = (participantRows || [])
-    .map(r => r.competitions)
-    .filter(Boolean);
-
-  const compMap = new Map();
-  (ownComps || []).forEach(c => compMap.set(c.id, c));
-  participantComps.forEach(c => { if (!compMap.has(c.id)) compMap.set(c.id, c); });
-
-  const comps = [...compMap.values()].sort((x, y) => {
-    const dx = x.date ? new Date(x.date).getTime() : 0;
-    const dy = y.date ? new Date(y.date).getTime() : 0;
-    return dy - dx;
-  });
+  const comps = (partRows || []).filter(p => p.competitions);
 
   const initials = `${a.name?.[0]||''}${a.surname?.[0]||''}`.toUpperCase();
   const age      = a.birthdate ? Math.floor((Date.now() - new Date(a.birthdate)) / 31557600000) : null;
@@ -464,14 +453,13 @@ async function openAthleteDetail(id) {
 
   const compsHtml = comps.length ? `
     <table class="comp-table">
-      <thead><tr><th>Мрцуйт</th><th>Amsatyw</th><th>Мarзadзev</th><th>Qash</th><th>Ardyunq</th></tr></thead>
+      <thead><tr><th>Мрцуйт</th><th>Amsatyw</th><th>Qash</th><th>Ardyunq</th></tr></thead>
       <tbody>
-        ${comps.map(c => `<tr>
-          <td>${c.name}</td>
-          <td>${c.date ? new Date(c.date).toLocaleDateString('hy-AM') : '—'}</td>
-          <td>${c.sport||'—'}</td>
-          <td>${c.weight_class||'—'}</td>
-          <td style="color:var(--gold);font-weight:700">${c.result||'—'}</td>
+        ${comps.map(p => `<tr>
+          <td>${p.competitions.name}</td>
+          <td>${p.competitions.date ? new Date(p.competitions.date).toLocaleDateString('hy-AM') : '—'}</td>
+          <td>${p.weight_class||'—'}</td>
+          <td style="color:var(--gold);font-weight:700">${p.result ? getMedalEmoji(p.result)+' '+p.result : '—'}</td>
         </tr>`).join('')}
       </tbody>
     </table>` : '<p style="color:var(--text3);font-size:13px">Мрцуйт chi grantsatsvel.</p>';
@@ -538,9 +526,7 @@ async function openAthleteDetail(id) {
       ${parentsHtml}
       <div class="detail-card">
         <div class="detail-card-title" style="display:flex;justify-content:space-between;align-items:center">
-          Мрцуйтнер (${comps.length})
-          <button class="btn-primary" style="font-size:11px;padding:6px 12px" onclick="openAddCompModal('${a.id}')">+ Avely</button>
-        </div>
+          Мрцуйтнер (${comps.length})</div>
         ${compsHtml}
       </div>
     </div>
@@ -1379,96 +1365,19 @@ function previewFile(input, previewId, placeholderId) {
   reader.readAsDataURL(input.files[0]);
 }
 
+
 // ============================================================
-// COMPETITIONS
+// COMPETITION HELPERS
 // ============================================================
-async function loadCompetitions(filter = '') {
-  const list = document.getElementById('competitions-list');
-  list.innerHTML = '<div class="loading"><div class="spinner"></div> Berrnum e...</div>';
-
-  let query = sb.from('competitions')
-    .select('*, athletes(name, surname), competition_participants(athlete_id, athletes(name, surname))')
-    .order('date', { ascending: false });
-
-  const sport = document.getElementById('comp-filter-sport')?.value;
-  if (sport) query = query.eq('sport', sport);
-
-  const { data } = await query;
-  allCompetitions = data || [];
-
-  let filtered = allCompetitions;
-  if (filter) {
-    const q = filter.toLowerCase();
-    filtered = allCompetitions.filter(c => {
-      const participantNames = (c.competition_participants || [])
-        .map(p => `${p.athletes?.name||''} ${p.athletes?.surname||''}`)
-        .join(' ').toLowerCase();
-      return (c.name||'').toLowerCase().includes(q) ||
-        (c.location||'').toLowerCase().includes(q) ||
-        (c.athletes?.name||'').toLowerCase().includes(q) ||
-        (c.athletes?.surname||'').toLowerCase().includes(q) ||
-        participantNames.includes(q);
-    });
-  }
-
-  if (!filtered.length) {
-    list.innerHTML = `<div style="color:var(--text3);padding:40px;text-align:center;font-size:14px">Мrцуйт chi grantsatsvel.</div>`;
-    return;
-  }
-
-  list.innerHTML = filtered.map(c => {
-    const medal = c.result ? getMedalEmoji(c.result) : '🏅';
-
-    // build list of all participating athletes (primary + extra participants), de-duplicated
-    const names = [];
-    if (c.athletes) names.push(`${c.athletes.name} ${c.athletes.surname}`);
-    (c.competition_participants || []).forEach(p => {
-      if (p.athletes) {
-        const nm = `${p.athletes.name} ${p.athletes.surname}`;
-        if (!names.includes(nm)) names.push(nm);
-      }
-    });
-    const athleteLabel = names.length
-      ? (names.length > 1 ? `${names[0]} +${names.length - 1}` : names[0])
-      : '';
-
-    return `
-    <div class="comp-item">
-      <div class="comp-medal">${medal}</div>
-      <div class="comp-info">
-        <div class="comp-name">${c.name}</div>
-        <div class="comp-meta">
-          ${athleteLabel ? `${athleteLabel} · ` : ''}
-          ${c.sport    ? `${c.sport} · ` : ''}
-          ${c.location ? `${c.location} · ` : ''}
-          ${c.date     ? new Date(c.date).toLocaleDateString('hy-AM') : ''}
-          ${c.weight_class ? ` · ${c.weight_class}` : ''}
-        </div>
-      </div>
-      <div class="comp-result">${c.result||'—'}</div>
-      <div class="comp-actions">
-        <button class="comp-action-btn" onclick="openEditCompModal('${c.id}')" title="Khmbagrel">✎</button>
-        <button class="comp-action-btn del" onclick="deleteComp('${c.id}')" title="Джnjel">✕</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
 function getMedalEmoji(result) {
-  const r = result.toLowerCase();
+  const r = (result || '').toLowerCase();
   if (r.includes('1') || r.includes('gold')   || r.includes('vosk'))   return '🥇';
   if (r.includes('2') || r.includes('silver') || r.includes('ardzath')) return '🥈';
   if (r.includes('3') || r.includes('bronze') || r.includes('bronz'))   return '🥉';
   return '🏅';
 }
 
-function handleCompSearch() {
-  const el = document.getElementById('comp-search');
-  if (el) loadCompetitions(el.value);
-}
-
 let athleteOptionsCache = null;
-
 async function getAthleteOptions() {
   if (athleteOptionsCache) return athleteOptionsCache;
   const { data } = await sb.from('athletes').select('id, name, surname, sport').order('surname');
@@ -1476,263 +1385,8 @@ async function getAthleteOptions() {
   return athleteOptionsCache;
 }
 
-async function openAddCompModal(preselectedAthleteId = null) {
-  document.getElementById('comp-modal-title').textContent = 'Мrцуйтi Grantsуm';
-  ['comp-id','comp-name','comp-date','comp-location','comp-result','comp-weight','comp-notes'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  document.getElementById('comp-sport').value     = '';
-  document.getElementById('comp-error').textContent = '';
-
-  const athletes = await getAthleteOptions();
-
-  const sel = document.getElementById('comp-athlete');
-  sel.innerHTML = '<option value="">Yntrel marzik (himnakan)</option>';
-  athletes.forEach(a => {
-    const o = document.createElement('option');
-    o.value = a.id;
-    o.textContent = `${a.surname}, ${a.name}${a.sport ? ' ('+a.sport+')' : ''}`;
-    sel.appendChild(o);
-  });
-  if (preselectedAthleteId) sel.value = preselectedAthleteId;
-
-  // additional participants checklist
-  renderParticipantChecklist(athletes, preselectedAthleteId ? [preselectedAthleteId] : []);
-
-  document.getElementById('comp-modal').style.display = 'flex';
-}
-
-function renderParticipantChecklist(athletes, selectedIds) {
-  const el = document.getElementById('comp-participants-list');
-  if (!el) return;
-  const primaryId = document.getElementById('comp-athlete').value;
-  el.innerHTML = athletes.map(a => {
-    const checked = selectedIds.includes(a.id) ? 'checked' : '';
-    const isPrimary = a.id === primaryId;
-    return `<label class="participant-check-item${isPrimary ? ' is-primary' : ''}">
-      <input type="checkbox" value="${a.id}" ${checked} ${isPrimary ? 'disabled checked' : ''}>
-      <span>${a.surname}, ${a.name}${a.sport ? ' ('+a.sport+')' : ''}${isPrimary ? ' — himnakan' : ''}</span>
-    </label>`;
-  }).join('');
-}
-
-async function refreshParticipantChecklistPrimary() {
-  const athletes = await getAthleteOptions();
-  const checked = Array.from(document.querySelectorAll('#comp-participants-list input[type=checkbox]:checked'))
-    .map(cb => cb.value);
-  renderParticipantChecklist(athletes, checked);
-}
-
-async function openEditCompModal(id) {
-  const { data: c } = await sb.from('competitions').select('*, competition_participants(athlete_id)').eq('id', id).single();
-  if (!c) return;
-  await openAddCompModal(c.athlete_id);
-  document.getElementById('comp-modal-title').textContent = 'Мrцуйт Khmbagrel';
-  document.getElementById('comp-id').value        = c.id;
-  document.getElementById('comp-athlete').value   = c.athlete_id   || '';
-  document.getElementById('comp-name').value      = c.name         || '';
-  document.getElementById('comp-date').value      = c.date         || '';
-  document.getElementById('comp-location').value  = c.location     || '';
-  document.getElementById('comp-result').value    = c.result       || '';
-  document.getElementById('comp-weight').value    = c.weight_class || '';
-  document.getElementById('comp-notes').value     = c.notes        || '';
-  document.getElementById('comp-sport').value     = c.sport        || '';
-
-  const participantIds = (c.competition_participants || []).map(p => p.athlete_id);
-  const allIds = [...new Set([c.athlete_id, ...participantIds].filter(Boolean))];
-  const athletes = await getAthleteOptions();
-  renderParticipantChecklist(athletes, allIds);
-}
-
-async function saveCompetition() {
-  const err        = document.getElementById('comp-error');
-  err.textContent  = '';
-  const name       = document.getElementById('comp-name').value.trim();
-  const athlete_id = document.getElementById('comp-athlete').value;
-  if (!name)       { err.textContent = 'Мrцуйтi anunh partadir e.'; return; }
-  if (!athlete_id) { err.textContent = 'Yntrel marzik.'; return; }
-
-  const payload = {
-    athlete_id, name,
-    date:         document.getElementById('comp-date').value           || null,
-    location:     document.getElementById('comp-location').value.trim()|| null,
-    sport:        document.getElementById('comp-sport').value          || null,
-    result:       document.getElementById('comp-result').value.trim()  || null,
-    weight_class: document.getElementById('comp-weight').value.trim()  || null,
-    notes:        document.getElementById('comp-notes').value.trim()   || null,
-  };
-
-  const editId = document.getElementById('comp-id').value;
-  let compId   = editId;
-  let dbError;
-  if (editId) {
-    const { error } = await sb.from('competitions').update(payload).eq('id', editId);
-    dbError = error;
-  } else {
-    const { data, error } = await sb.from('competitions').insert(payload).select().single();
-    dbError = error;
-    if (data) compId = data.id;
-  }
-  if (dbError) { err.textContent = `Skhal: ${dbError.message}`; return; }
-
-  // sync additional participants (excluding the primary athlete, which is stored on competitions.athlete_id)
-  if (compId) {
-    const selectedIds = Array.from(document.querySelectorAll('#comp-participants-list input[type=checkbox]:checked'))
-      .map(cb => cb.value)
-      .filter(id => id !== athlete_id);
-
-    await sb.from('competition_participants').delete().eq('competition_id', compId);
-    if (selectedIds.length) {
-      await sb.from('competition_participants').insert(
-        selectedIds.map(athlete_id => ({ competition_id: compId, athlete_id }))
-      );
-    }
-  }
-
-  closeCompModalDirect();
-  loadCompetitions();
-}
-
-async function deleteComp(id) {
-  if (!confirm('Джnjel mrtsuythe?')) return;
-  await sb.from('competition_participants').delete().eq('competition_id', id);
-  await sb.from('competitions').delete().eq('id', id);
-  loadCompetitions();
-}
-
-function closeCompModal(e)      { if (e.target.id === 'comp-modal') closeCompModalDirect(); }
-function closeCompModalDirect() { document.getElementById('comp-modal').style.display = 'none'; }
-
-// ============================================================
-// IMAGE VIEWER
-// ============================================================
-function viewImage(url) {
-  document.getElementById('img-viewer-src').src = url;
-  document.getElementById('img-viewer').style.display = 'flex';
-}
-// ============================================================
-// COACH EXTRA DOCS (unlimited, like athletes)
-// ============================================================
-let coachExtraDocsExisting = [];
-
-function renderCoachExtraDocsEdit(urls) {
-  coachExtraDocsExisting = urls || [];
-  const container = document.getElementById('coach-extra-docs-list');
-  if (!container) return;
-  if (!coachExtraDocsExisting.length) {
-    container.innerHTML = '<div style="color:var(--text3);font-size:.8rem">Pastataght chka</div>';
-    return;
-  }
-  container.innerHTML = coachExtraDocsExisting.map((url, i) => {
-    const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
-    const name  = `Pastataght ${i+1}`;
-    return `<div class="extra-doc-chip">
-      ${isImg ? `<img src="${url}" onclick="viewImage('${url}')" title="${name}">` : `<span class="extra-doc-icon" onclick="viewImage('${url}')">▤ ${name}</span>`}
-      <button class="extra-doc-del" onclick="removeCoachExtraDoc(${i})" title="Heracnel">✕</button>
-    </div>`;
-  }).join('');
-}
-
-async function removeCoachExtraDoc(index) {
-  coachExtraDocsExisting.splice(index, 1);
-  renderCoachExtraDocsEdit(coachExtraDocsExisting);
-  const coachId = document.getElementById('coach-id').value;
-  if (coachId) await sb.from('coaches').update({ extra_docs: coachExtraDocsExisting }).eq('id', coachId);
-}
-
-async function uploadCoachExtraDocs(coachId) {
-  const input = document.getElementById('coach-extra-docs-input');
-  if (!input || !input.files || !input.files.length) return;
-  const newUrls = [];
-  for (const file of input.files) {
-    const ext  = file.name.split('.').pop();
-    const path = `${coachId}/extra/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await sb.storage.from('coach-docs').upload(path, file, { upsert: true });
-    if (error) { console.error('Coach doc upload error:', error); continue; }
-    const { data: { publicUrl } } = sb.storage.from('coach-docs').getPublicUrl(path);
-    newUrls.push(publicUrl);
-  }
-  const merged = [...coachExtraDocsExisting, ...newUrls];
-  await sb.from('coaches').update({ extra_docs: merged }).eq('id', coachId);
-  coachExtraDocsExisting = merged;
-  input.value = '';
-}
-
-function handleCoachExtraDocsChange(input) {
-  const container = document.getElementById('coach-extra-docs-list');
-  if (!container || !input.files || !input.files.length) return;
-  const pendingHtml = Array.from(input.files).map(file => {
-    if (file.type.startsWith('image/')) {
-      const url = URL.createObjectURL(file);
-      return `<div class="extra-doc-chip pending"><img src="${url}" title="${file.name}"><span class="extra-doc-pending-badge">new</span></div>`;
-    }
-    return `<div class="extra-doc-chip pending"><span class="extra-doc-icon">▤ ${file.name}</span><span class="extra-doc-pending-badge">new</span></div>`;
-  }).join('');
-  renderCoachExtraDocsEdit(coachExtraDocsExisting);
-  container.insertAdjacentHTML('beforeend', pendingHtml);
-}
-
-// ============================================================
-// WORKER EXTRA DOCS (unlimited, like athletes)
-// ============================================================
-let workerExtraDocsExisting = [];
-
-function renderWorkerExtraDocsEdit(urls) {
-  workerExtraDocsExisting = urls || [];
-  const container = document.getElementById('worker-extra-docs-list');
-  if (!container) return;
-  if (!workerExtraDocsExisting.length) {
-    container.innerHTML = '<div style="color:var(--text3);font-size:.8rem">Pastataght chka</div>';
-    return;
-  }
-  container.innerHTML = workerExtraDocsExisting.map((url, i) => {
-    const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
-    const name  = `Pastataght ${i+1}`;
-    return `<div class="extra-doc-chip">
-      ${isImg ? `<img src="${url}" onclick="viewImage('${url}')" title="${name}">` : `<span class="extra-doc-icon" onclick="viewImage('${url}')">▤ ${name}</span>`}
-      <button class="extra-doc-del" onclick="removeWorkerExtraDoc(${i})" title="Heracnel">✕</button>
-    </div>`;
-  }).join('');
-}
-
-async function removeWorkerExtraDoc(index) {
-  workerExtraDocsExisting.splice(index, 1);
-  renderWorkerExtraDocsEdit(workerExtraDocsExisting);
-  const workerId = document.getElementById('worker-id').value;
-  if (workerId) await sb.from('workers').update({ extra_docs: workerExtraDocsExisting }).eq('id', workerId);
-}
-
-async function uploadWorkerExtraDocs(workerId) {
-  const input = document.getElementById('worker-extra-docs-input');
-  if (!input || !input.files || !input.files.length) return;
-  const newUrls = [];
-  for (const file of input.files) {
-    const ext  = file.name.split('.').pop();
-    const path = `${workerId}/extra/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await sb.storage.from('worker-docs').upload(path, file, { upsert: true });
-    if (error) { console.error('Worker doc upload error:', error); continue; }
-    const { data: { publicUrl } } = sb.storage.from('worker-docs').getPublicUrl(path);
-    newUrls.push(publicUrl);
-  }
-  const merged = [...workerExtraDocsExisting, ...newUrls];
-  await sb.from('workers').update({ extra_docs: merged }).eq('id', workerId);
-  workerExtraDocsExisting = merged;
-  input.value = '';
-}
-
-function handleWorkerExtraDocsChange(input) {
-  const container = document.getElementById('worker-extra-docs-list');
-  if (!container || !input.files || !input.files.length) return;
-  const pendingHtml = Array.from(input.files).map(file => {
-    if (file.type.startsWith('image/')) {
-      const url = URL.createObjectURL(file);
-      return `<div class="extra-doc-chip pending"><img src="${url}" title="${file.name}"><span class="extra-doc-pending-badge">new</span></div>`;
-    }
-    return `<div class="extra-doc-chip pending"><span class="extra-doc-icon">▤ ${file.name}</span><span class="extra-doc-pending-badge">new</span></div>`;
-  }).join('');
-  renderWorkerExtraDocsEdit(workerExtraDocsExisting);
-  container.insertAdjacentHTML('beforeend', pendingHtml);
-}
+function closeCompModal(e)       { if (e.target.id === 'comp-modal') closeCompModalDirect(); }
+function closeCompModalDirect()  { document.getElementById('comp-modal').style.display = 'none'; }
 
 // ============================================================
 // COMPETITION — NEW FLOW (competition-first, then add athletes)
