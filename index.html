@@ -519,51 +519,9 @@ img{max-width:100%;display:block}
             <input class="form-input" id="f-parent1-phone" type="tel" placeholder="+374...">
           </div>
         </div>
-        <div class="form-group" style="margin-top:16px">
-          <label>Անձնագրի Սկան</label>
-          <div class="upload-zone" style="min-height:90px">
-            <input type="file" id="parent1-id-input" accept="image/*,application/pdf" onchange="previewFile(this,'parent1-id-preview','parent1-id-placeholder')">
-            <div class="upload-placeholder" id="parent1-id-placeholder">
-              <span class="upload-icon">▤</span>
-              <span class="upload-label">Անձնագրի սկան</span>
-            </div>
-            <img id="parent1-id-preview" class="upload-preview" style="display:none">
-          </div>
-        </div>
       </div>
 
-      <div class="form-section">
-        <div class="form-section-title">Ծնող / Խնամակալ 2</div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Անուն</label>
-            <input class="form-input" id="f-parent2-name" type="text" placeholder="Անուն">
-          </div>
-          <div class="form-group">
-            <label>Ազգանուն</label>
-            <input class="form-input" id="f-parent2-surname" type="text" placeholder="Ազգանուն">
-          </div>
-          <div class="form-group">
-            <label>Անձնագիր / ID</label>
-            <input class="form-input" id="f-parent2-passport" type="text" placeholder="Սերիա և համար">
-          </div>
-          <div class="form-group">
-            <label>Հեռախոս</label>
-            <input class="form-input" id="f-parent2-phone" type="tel" placeholder="+374...">
-          </div>
-        </div>
-        <div class="form-group" style="margin-top:16px">
-          <label>Անձնագրի Սկան</label>
-          <div class="upload-zone" style="min-height:90px">
-            <input type="file" id="parent2-id-input" accept="image/*,application/pdf" onchange="previewFile(this,'parent2-id-preview','parent2-id-placeholder')">
-            <div class="upload-placeholder" id="parent2-id-placeholder">
-              <span class="upload-icon">▤</span>
-              <span class="upload-label">Անձնագրի սկան</span>
-            </div>
-            <img id="parent2-id-preview" class="upload-preview" style="display:none">
-          </div>
-        </div>
-      </div>
+      
 
       <div class="form-section">
         <div class="form-section-title">Լուսանկար</div>
@@ -737,48 +695,18 @@ img{max-width:100%;display:block}
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">Паstatughtner</div>
-        <div class="upload-grid-4">
-          <div class="form-group">
-            <label>Andznakan qart</label>
-            <div class="upload-zone">
-              <input type="file" id="coach-passport-input" accept="image/*,application/pdf" onchange="previewFile(this,'coach-passport-preview','coach-passport-placeholder')">
-              <div class="upload-placeholder" id="coach-passport-placeholder">
-                <span class="upload-icon">▤</span><span class="upload-label">Andznagan</span>
-              </div>
-              <img id="coach-passport-preview" class="upload-preview" style="display:none">
+        <div class="form-section-title">Փաutatughtner</div>
+        <div class="form-group">
+          <label>Անձнагир / Пастатug (Лuсаnkar, PDF)</label>
+          <div class="upload-zone">
+            <input type="file" id="coach-extra-docs-input" accept="image/*,application/pdf" multiple onchange="handleCoachExtraDocsChange(this)">
+            <div class="upload-placeholder">
+              <span class="upload-icon">📎</span>
+              <span class="upload-label">Avlj Пастатughtner (анsahmanafak)</span>
+              <span class="upload-sublabel">Каrоg eq yntrel mi qani fayл</span>
             </div>
           </div>
-          <div class="form-group">
-            <label>Pastataght 1</label>
-            <div class="upload-zone">
-              <input type="file" id="c-doc1-input" accept="image/*,application/pdf" onchange="previewFile(this,'c-doc1-preview','c-doc1-placeholder')">
-              <div class="upload-placeholder" id="c-doc1-placeholder">
-                <span class="upload-icon">▤</span><span class="upload-label">Pastataght 1</span>
-              </div>
-              <img id="c-doc1-preview" class="upload-preview" style="display:none">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Pastataght 2</label>
-            <div class="upload-zone">
-              <input type="file" id="c-doc2-input" accept="image/*,application/pdf" onchange="previewFile(this,'c-doc2-preview','c-doc2-placeholder')">
-              <div class="upload-placeholder" id="c-doc2-placeholder">
-                <span class="upload-icon">▤</span><span class="upload-label">Pastataght 2</span>
-              </div>
-              <img id="c-doc2-preview" class="upload-preview" style="display:none">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Pastataght 3</label>
-            <div class="upload-zone">
-              <input type="file" id="c-doc3-input" accept="image/*,application/pdf" onchange="previewFile(this,'c-doc3-preview','c-doc3-placeholder')">
-              <div class="upload-placeholder" id="c-doc3-placeholder">
-                <span class="upload-icon">▤</span><span class="upload-label">Pastataght 3</span>
-              </div>
-              <img id="c-doc3-preview" class="upload-preview" style="display:none">
-            </div>
-          </div>
+          <div class="extra-docs-list" id="coach-extra-docs-list"></div>
         </div>
       </div>
 
@@ -860,10 +788,7 @@ img{max-width:100%;display:block}
             <label>El. prost</label>
             <input class="form-input" id="fw-email" type="email" placeholder="email@example.com">
           </div>
-          <div class="form-group">
-            <label>Ashkhatavarj (֏)</label>
-            <input class="form-input" id="fw-salary" type="number" placeholder="150000 dram">
-          </div>
+
         </div>
       </div>
       <div class="form-section">
@@ -882,48 +807,18 @@ img{max-width:100%;display:block}
         </div>
       </div>
       <div class="form-section">
-        <div class="form-section-title">Паstatuгhtner</div>
-        <div class="upload-grid-4">
-          <div class="form-group">
-            <label>Andznagir</label>
-            <div class="upload-zone">
-              <input type="file" id="worker-passport-input" accept="image/*,application/pdf" onchange="previewFile(this,'worker-passport-preview','worker-passport-placeholder')">
-              <div class="upload-placeholder" id="worker-passport-placeholder">
-                <span class="upload-icon">▤</span><span class="upload-label">Andznagir</span>
-              </div>
-              <img id="worker-passport-preview" class="upload-preview" style="display:none">
+        <div class="form-section-title">Փաutatughtner</div>
+        <div class="form-group">
+          <label>Անձнагир / Пастатug (Лuсаnkar, PDF)</label>
+          <div class="upload-zone">
+            <input type="file" id="worker-extra-docs-input" accept="image/*,application/pdf" multiple onchange="handleWorkerExtraDocsChange(this)">
+            <div class="upload-placeholder">
+              <span class="upload-icon">📎</span>
+              <span class="upload-label">Avlj Пастатughtner (анsahmanafak)</span>
+              <span class="upload-sublabel">Каrоg eq yntrel mi qani fayл</span>
             </div>
           </div>
-          <div class="form-group">
-            <label>Pastataght 1</label>
-            <div class="upload-zone">
-              <input type="file" id="w-doc1-input" accept="image/*,application/pdf" onchange="previewFile(this,'w-doc1-preview','w-doc1-placeholder')">
-              <div class="upload-placeholder" id="w-doc1-placeholder">
-                <span class="upload-icon">▤</span><span class="upload-label">Pastataght 1</span>
-              </div>
-              <img id="w-doc1-preview" class="upload-preview" style="display:none">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Pastataght 2</label>
-            <div class="upload-zone">
-              <input type="file" id="w-doc2-input" accept="image/*,application/pdf" onchange="previewFile(this,'w-doc2-preview','w-doc2-placeholder')">
-              <div class="upload-placeholder" id="w-doc2-placeholder">
-                <span class="upload-icon">▤</span><span class="upload-label">Pastataght 2</span>
-              </div>
-              <img id="w-doc2-preview" class="upload-preview" style="display:none">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Pastataght 3</label>
-            <div class="upload-zone">
-              <input type="file" id="w-doc3-input" accept="image/*,application/pdf" onchange="previewFile(this,'w-doc3-preview','w-doc3-placeholder')">
-              <div class="upload-placeholder" id="w-doc3-placeholder">
-                <span class="upload-icon">▤</span><span class="upload-label">Pastataght 3</span>
-              </div>
-              <img id="w-doc3-preview" class="upload-preview" style="display:none">
-            </div>
-          </div>
+          <div class="extra-docs-list" id="worker-extra-docs-list"></div>
         </div>
       </div>
       <div class="form-section">
@@ -942,16 +837,27 @@ img{max-width:100%;display:block}
   <!-- COMPETITIONS -->
   <div id="page-competitions" class="page">
     <div class="page-header">
-      <h1>Мрцуйтнер</h1>
-      <button class="btn-primary" onclick="openAddCompModal()">+ Avely</button>
+      <h1>Մрцуйтнер</h1>
+      <button class="btn-primary" onclick="openNewCompetitionModal()">+ Nor Мрцуйт</button>
     </div>
     <div class="filter-bar">
-      <input class="search-input" id="comp-search" placeholder="Мрцуйт, vayr, marzik..." oninput="handleCompSearch()">
+      <input class="search-input" id="comp-search" placeholder="Мрцуйт, vayr..." oninput="handleCompSearch()">
       <select class="filter-select" id="comp-filter-sport" onchange="loadCompetitions()">
         <option value="">Bolory marzadzevner</option>
       </select>
     </div>
     <div id="competitions-list"></div>
+  </div>
+
+  <!-- COMPETITION DETAIL (participants by weight) -->
+  <div id="page-comp-detail" class="page">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showPage('competitions')">← Нet</button>
+      <button class="btn-primary" onclick="openAddParticipantModal()">+ Мarziк avely</button>
+      <button class="btn-secondary" onclick="editCurrentCompetition()">✎ Хмбagrel</button>
+      <button class="btn-danger" onclick="deleteCurrentCompetition()">✕ Джnjel</button>
+    </div>
+    <div id="comp-detail-content"></div>
   </div>
 
 </div><!-- /main -->
