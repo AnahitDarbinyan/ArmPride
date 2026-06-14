@@ -863,20 +863,16 @@ img{max-width:100%;display:block}
 </div><!-- /main -->
 </div><!-- /app-screen -->
 
-<!-- COMPETITION MODAL -->
+<!-- COMPETITION MODAL (simple: name, date, location, sport only) -->
 <div class="modal" id="comp-modal" onclick="closeCompModal(event)">
-  <div class="modal-inner">
+  <div class="modal-inner" style="max-width:520px">
     <button class="modal-close" onclick="closeCompModalDirect()">✕</button>
-    <div class="modal-title" id="comp-modal-title">Мрцуйтi Grantsуm</div>
+    <div class="modal-title" id="comp-modal-title">Nor Մрцуйт</div>
     <input type="hidden" id="comp-id">
     <div class="form-grid">
-      <div class="form-group">
-        <label>Марзик (Himnakan) <span class="req">*</span></label>
-        <select class="form-select" id="comp-athlete" onchange="refreshParticipantChecklistPrimary()"><option value="">Yntrel marzik</option></select>
-      </div>
-      <div class="form-group">
-        <label>Мрцуйти anunh <span class="req">*</span></label>
-        <input class="form-input" id="comp-name" type="text" placeholder="Чемпионат...">
+      <div class="form-group" style="grid-column:1/-1">
+        <label>Մрцуйти Անunhn <span class="req">*</span></label>
+        <input class="form-input" id="comp-name" type="text" placeholder="Հայastaни Чемпионаt 2025...">
       </div>
       <div class="form-group">
         <label>Amsatyw</label>
@@ -884,37 +880,56 @@ img{max-width:100%;display:block}
       </div>
       <div class="form-group">
         <label>Vayr</label>
-        <input class="form-input" id="comp-location" type="text" placeholder="...">
-      </div>
-      <div class="form-group">
-        <label>Марзадзев</label>
-        <select class="form-select" id="comp-sport"><option value="">Мarзадзев</option></select>
-      </div>
-      <div class="form-group">
-        <label>Qash / Хumб</label>
-        <input class="form-input" id="comp-weight" type="text" placeholder="74кg">
+        <input class="form-input" id="comp-location" type="text" placeholder="Yerevan...">
       </div>
       <div class="form-group" style="grid-column:1/-1">
-        <label>Ardyunq</label>
-        <input class="form-input" id="comp-result" type="text" placeholder="1-in Tegh...">
-      </div>
-      <div class="form-group" style="grid-column:1/-1">
-        <label>Lravor Mասnakicner</label>
-        <div class="participant-checklist" id="comp-participants-list"></div>
+        <label>Марзаdzev</label>
+        <select class="form-select" id="comp-sport"><option value="">Yntrel мarзадзев</option></select>
       </div>
       <div class="form-group" style="grid-column:1/-1">
         <label>Nshumner</label>
-        <textarea class="form-textarea" id="comp-notes" style="min-height:70px" placeholder="Lrracucich teghekutyunh..."></textarea>
+        <textarea class="form-textarea" id="comp-notes" style="min-height:60px" placeholder="..."></textarea>
       </div>
     </div>
     <div style="color:var(--red-light);font-size:.9rem;margin-top:8px" id="comp-error"></div>
     <div class="form-actions" style="margin-top:18px">
-      <button class="btn-primary" onclick="saveCompetition()">✓ Pahh</button>
+      <button class="btn-primary" onclick="saveCompetition()">✓ Pahh u Avely Мarziкner</button>
       <button class="btn-secondary" onclick="closeCompModalDirect()">Chegharkel</button>
     </div>
   </div>
 </div>
 
+<!-- ADD PARTICIPANT MODAL -->
+<div class="modal" id="participant-modal" onclick="closeParticipantModal(event)">
+  <div class="modal-inner" style="max-width:480px">
+    <button class="modal-close" onclick="closeParticipantModalDirect()">✕</button>
+    <div class="modal-title" id="participant-modal-title">Мarziк Avely</div>
+    <input type="hidden" id="participant-id">
+    <div class="form-grid">
+      <div class="form-group" style="grid-column:1/-1">
+        <label>Мarziк <span class="req">*</span></label>
+        <select class="form-select" id="part-athlete"><option value="">Yntrel marzik...</option></select>
+      </div>
+      <div class="form-group">
+        <label>Qash / Хumб <span class="req">*</span></label>
+        <input class="form-input" id="part-weight" type="text" placeholder="-74кg, +90кg...">
+      </div>
+      <div class="form-group">
+        <label>Ardyunq / Medal</label>
+        <input class="form-input" id="part-result" type="text" placeholder="Vosk, 1-in tegh...">
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
+        <label>Nshumner</label>
+        <input class="form-input" id="part-notes" type="text" placeholder="...">
+      </div>
+    </div>
+    <div style="color:var(--red-light);font-size:.9rem;margin-top:8px" id="participant-error"></div>
+    <div class="form-actions" style="margin-top:18px">
+      <button class="btn-primary" onclick="saveParticipant()">✓ Pahh</button>
+      <button class="btn-secondary" onclick="closeParticipantModalDirect()">Chegharkel</button>
+    </div>
+  </div>
+</div>
 <!-- SPORT MANAGER MODAL -->
 <div class="modal" id="sport-modal" onclick="closeSportModal(event)">
   <div class="modal-inner">
