@@ -594,12 +594,6 @@ function fillAthleteForm(a) {
   setVal('f-parent1-surname',  a.parent1_surname);
   setVal('f-parent1-passport', a.parent1_passport);
   setVal('f-parent1-phone',    a.parent1_phone);
-  // Parent 2
-  setVal('f-parent2-name',     a.parent2_name);
-  setVal('f-parent2-surname',  a.parent2_surname);
-  setVal('f-parent2-passport', a.parent2_passport);
-  setVal('f-parent2-phone',    a.parent2_phone);
-
   if (a.photo_url) {
     const img = document.getElementById('photo-preview');
     img.src = a.photo_url; img.style.display = 'block';
@@ -614,10 +608,6 @@ function fillAthleteForm(a) {
   if (a.parent1_id_url) {
     const img = document.getElementById('parent1-id-preview');
     if (img) { img.src = a.parent1_id_url; img.style.display = 'block'; document.getElementById('parent1-id-placeholder').style.display = 'none'; }
-  }
-  if (a.parent2_id_url) {
-    const img = document.getElementById('parent2-id-preview');
-    if (img) { img.src = a.parent2_id_url; img.style.display = 'block'; document.getElementById('parent2-id-placeholder').style.display = 'none'; }
   }
   // populate extra docs gallery
   renderExtraDocsEdit(a.extra_docs || []);
@@ -648,7 +638,7 @@ function resetAthleteForm() {
   ['f-name','f-surname','f-father-name','f-birthdate','f-passport','f-athlete-number','f-nationality',
    'f-phone','f-email','f-weight','f-rank','f-coach','f-notes',
    'f-parent1-name','f-parent1-surname','f-parent1-passport','f-parent1-phone',
-   'f-parent2-name','f-parent2-surname','f-parent2-passport','f-parent2-phone'].forEach(id => {
+   ].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -661,15 +651,15 @@ function resetAthleteForm() {
   const statusEl = document.getElementById('f-status');
   if (statusEl) statusEl.value = 'Aktiv';
 
-  ['photo-input','passport-input','parent1-id-input','parent2-id-input','extra-docs-input'].forEach(id => {
+  ['photo-input','passport-input','extra-docs-input'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
-  ['photo-preview','passport-preview','parent1-id-preview','parent2-id-preview'].forEach(id => {
+  ['photo-preview','passport-preview'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.src = ''; el.style.display = 'none'; }
   });
-  ['photo-placeholder','passport-placeholder','parent1-id-placeholder','parent2-id-placeholder'].forEach(id => {
+  ['photo-placeholder','passport-placeholder'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'flex';
   });
@@ -720,10 +710,6 @@ async function saveAthlete() {
     parent1_surname: document.getElementById('f-parent1-surname')?.value.trim() || null,
     parent1_passport:document.getElementById('f-parent1-passport')?.value.trim()|| null,
     parent1_phone:   document.getElementById('f-parent1-phone')?.value.trim()   || null,
-    parent2_name:    document.getElementById('f-parent2-name')?.value.trim()    || null,
-    parent2_surname: document.getElementById('f-parent2-surname')?.value.trim() || null,
-    parent2_passport:document.getElementById('f-parent2-passport')?.value.trim()|| null,
-    parent2_phone:   document.getElementById('f-parent2-phone')?.value.trim()   || null,
   };
 
   const fatherName = document.getElementById('f-father-name').value.trim();
@@ -755,7 +741,6 @@ async function saveAthlete() {
     await uploadAthleteFile('photo-input',      athleteId, 'photos',    'photo_url');
     await uploadAthleteFile('passport-input',   athleteId, 'passports', 'passport_url');
     await uploadAthleteFile('parent1-id-input', athleteId, 'parent-ids', 'parent1_id_url');
-    await uploadAthleteFile('parent2-id-input', athleteId, 'parent-ids', 'parent2_id_url');
     await uploadExtraDocs(athleteId);
   }
 
@@ -913,13 +898,13 @@ function resetCoachForm() {
   });
   const gEl = document.getElementById('fc-gender'); if (gEl) gEl.value = '';
   const sEl = document.getElementById('fc-sport');  if (sEl) sEl.value  = '';
-  ['coach-photo-input','coach-passport-input','c-doc1-input','c-doc2-input','c-doc3-input'].forEach(id => {
+  ['coach-photo-input','coach-extra-docs-input'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
-  ['coach-photo-preview','coach-passport-preview','c-doc1-preview','c-doc2-preview','c-doc3-preview'].forEach(id => {
+  ['coach-photo-preview'].forEach(id => {
     const el = document.getElementById(id); if (el) { el.src = ''; el.style.display = 'none'; }
   });
-  ['coach-photo-placeholder','coach-passport-placeholder','c-doc1-placeholder','c-doc2-placeholder','c-doc3-placeholder'].forEach(id => {
+  ['coach-photo-placeholder'].forEach(id => {
     const el = document.getElementById(id); if (el) el.style.display = 'flex';
   });
   const errEl = document.getElementById('coach-form-error');   if (errEl) errEl.textContent = '';
@@ -1027,11 +1012,8 @@ async function saveCoach() {
   }
 
   if (coachId) {
-    await uploadCoachFile('coach-photo-input',    coachId, 'coach-photos',    'photo_url');
-    await uploadCoachFile('coach-passport-input', coachId, 'coach-passports', 'passport_url');
-    await uploadCoachFile('c-doc1-input',         coachId, 'coach-docs',      'doc1_url');
-    await uploadCoachFile('c-doc2-input',         coachId, 'coach-docs',      'doc2_url');
-    await uploadCoachFile('c-doc3-input',         coachId, 'coach-docs',      'doc3_url');
+    await uploadCoachFile('coach-photo-input', coachId, 'coach-photos', 'photo_url');
+    await uploadCoachExtraDocs(coachId);
   }
 
   btn.innerHTML = originalLabel; btn.disabled = false;
@@ -1223,16 +1205,16 @@ function resetWorkerForm() {
   document.getElementById('worker-id').value = '';
   document.getElementById('worker-form-title').textContent = 'Avely Ashkhatakich';
   ['fw-name','fw-surname','fw-father-name','fw-birthdate','fw-passport',
-   'fw-phone','fw-email','fw-title','fw-salary','fw-notes'].forEach(id => {
+   'fw-phone','fw-email','fw-title','fw-notes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
-  ['worker-photo-input','worker-passport-input','w-doc1-input','w-doc2-input'].forEach(id => {
+  ['worker-photo-input','worker-extra-docs-input'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
-  ['worker-photo-preview','worker-passport-preview','w-doc1-preview','w-doc2-preview'].forEach(id => {
+  ['worker-photo-preview'].forEach(id => {
     const el = document.getElementById(id); if (el) { el.src = ''; el.style.display = 'none'; }
   });
-  ['worker-photo-placeholder','worker-passport-placeholder','w-doc1-placeholder','w-doc2-placeholder'].forEach(id => {
+  ['worker-photo-placeholder'].forEach(id => {
     const el = document.getElementById(id); if (el) el.style.display = 'flex';
   });
   const errEl = document.getElementById('worker-form-error');   if (errEl) errEl.textContent = '';
@@ -1261,7 +1243,6 @@ async function saveWorker() {
   const originalLabel = btn.innerHTML;
   btn.innerHTML = '⏳ Pahvum e...'; btn.disabled = true;
 
-  const salaryRaw = document.getElementById('fw-salary').value.trim();
   const payload = {
     name, surname, title,
     father_name: document.getElementById('fw-father-name').value.trim() || null,
@@ -1269,7 +1250,6 @@ async function saveWorker() {
     passport_id: document.getElementById('fw-passport').value.trim()    || null,
     phone:       document.getElementById('fw-phone').value.trim()       || null,
     email:       document.getElementById('fw-email').value.trim()       || null,
-    salary:      salaryRaw ? parseFloat(salaryRaw) : null,
     notes:       document.getElementById('fw-notes').value.trim()       || null,
   };
 
@@ -1295,10 +1275,8 @@ async function saveWorker() {
   }
 
   if (workerId) {
-    await uploadWorkerFile('worker-photo-input',    workerId, 'worker-photos',    'photo_url');
-    await uploadWorkerFile('worker-passport-input', workerId, 'worker-passports', 'passport_url');
-    await uploadWorkerFile('w-doc1-input',          workerId, 'worker-docs',      'doc1_url');
-    await uploadWorkerFile('w-doc2-input',          workerId, 'worker-docs',      'doc2_url');
+    await uploadWorkerFile('worker-photo-input', workerId, 'worker-photos', 'photo_url');
+    await uploadWorkerExtraDocs(workerId);
   }
 
   btn.innerHTML = originalLabel; btn.disabled = false;
@@ -1632,3 +1610,471 @@ function viewImage(url) {
   document.getElementById('img-viewer-src').src = url;
   document.getElementById('img-viewer').style.display = 'flex';
 }
+// ============================================================
+// COACH EXTRA DOCS (unlimited, like athletes)
+// ============================================================
+let coachExtraDocsExisting = [];
+
+function renderCoachExtraDocsEdit(urls) {
+  coachExtraDocsExisting = urls || [];
+  const container = document.getElementById('coach-extra-docs-list');
+  if (!container) return;
+  if (!coachExtraDocsExisting.length) {
+    container.innerHTML = '<div style="color:var(--text3);font-size:.8rem">Pastataght chka</div>';
+    return;
+  }
+  container.innerHTML = coachExtraDocsExisting.map((url, i) => {
+    const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+    const name  = `Pastataght ${i+1}`;
+    return `<div class="extra-doc-chip">
+      ${isImg ? `<img src="${url}" onclick="viewImage('${url}')" title="${name}">` : `<span class="extra-doc-icon" onclick="viewImage('${url}')">▤ ${name}</span>`}
+      <button class="extra-doc-del" onclick="removeCoachExtraDoc(${i})" title="Heracnel">✕</button>
+    </div>`;
+  }).join('');
+}
+
+async function removeCoachExtraDoc(index) {
+  coachExtraDocsExisting.splice(index, 1);
+  renderCoachExtraDocsEdit(coachExtraDocsExisting);
+  const coachId = document.getElementById('coach-id').value;
+  if (coachId) await sb.from('coaches').update({ extra_docs: coachExtraDocsExisting }).eq('id', coachId);
+}
+
+async function uploadCoachExtraDocs(coachId) {
+  const input = document.getElementById('coach-extra-docs-input');
+  if (!input || !input.files || !input.files.length) return;
+  const newUrls = [];
+  for (const file of input.files) {
+    const ext  = file.name.split('.').pop();
+    const path = `${coachId}/extra/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await sb.storage.from('coach-docs').upload(path, file, { upsert: true });
+    if (error) { console.error('Coach doc upload error:', error); continue; }
+    const { data: { publicUrl } } = sb.storage.from('coach-docs').getPublicUrl(path);
+    newUrls.push(publicUrl);
+  }
+  const merged = [...coachExtraDocsExisting, ...newUrls];
+  await sb.from('coaches').update({ extra_docs: merged }).eq('id', coachId);
+  coachExtraDocsExisting = merged;
+  input.value = '';
+}
+
+function handleCoachExtraDocsChange(input) {
+  const container = document.getElementById('coach-extra-docs-list');
+  if (!container || !input.files || !input.files.length) return;
+  const pendingHtml = Array.from(input.files).map(file => {
+    if (file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file);
+      return `<div class="extra-doc-chip pending"><img src="${url}" title="${file.name}"><span class="extra-doc-pending-badge">new</span></div>`;
+    }
+    return `<div class="extra-doc-chip pending"><span class="extra-doc-icon">▤ ${file.name}</span><span class="extra-doc-pending-badge">new</span></div>`;
+  }).join('');
+  renderCoachExtraDocsEdit(coachExtraDocsExisting);
+  container.insertAdjacentHTML('beforeend', pendingHtml);
+}
+
+// ============================================================
+// WORKER EXTRA DOCS (unlimited, like athletes)
+// ============================================================
+let workerExtraDocsExisting = [];
+
+function renderWorkerExtraDocsEdit(urls) {
+  workerExtraDocsExisting = urls || [];
+  const container = document.getElementById('worker-extra-docs-list');
+  if (!container) return;
+  if (!workerExtraDocsExisting.length) {
+    container.innerHTML = '<div style="color:var(--text3);font-size:.8rem">Pastataght chka</div>';
+    return;
+  }
+  container.innerHTML = workerExtraDocsExisting.map((url, i) => {
+    const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+    const name  = `Pastataght ${i+1}`;
+    return `<div class="extra-doc-chip">
+      ${isImg ? `<img src="${url}" onclick="viewImage('${url}')" title="${name}">` : `<span class="extra-doc-icon" onclick="viewImage('${url}')">▤ ${name}</span>`}
+      <button class="extra-doc-del" onclick="removeWorkerExtraDoc(${i})" title="Heracnel">✕</button>
+    </div>`;
+  }).join('');
+}
+
+async function removeWorkerExtraDoc(index) {
+  workerExtraDocsExisting.splice(index, 1);
+  renderWorkerExtraDocsEdit(workerExtraDocsExisting);
+  const workerId = document.getElementById('worker-id').value;
+  if (workerId) await sb.from('workers').update({ extra_docs: workerExtraDocsExisting }).eq('id', workerId);
+}
+
+async function uploadWorkerExtraDocs(workerId) {
+  const input = document.getElementById('worker-extra-docs-input');
+  if (!input || !input.files || !input.files.length) return;
+  const newUrls = [];
+  for (const file of input.files) {
+    const ext  = file.name.split('.').pop();
+    const path = `${workerId}/extra/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await sb.storage.from('worker-docs').upload(path, file, { upsert: true });
+    if (error) { console.error('Worker doc upload error:', error); continue; }
+    const { data: { publicUrl } } = sb.storage.from('worker-docs').getPublicUrl(path);
+    newUrls.push(publicUrl);
+  }
+  const merged = [...workerExtraDocsExisting, ...newUrls];
+  await sb.from('workers').update({ extra_docs: merged }).eq('id', workerId);
+  workerExtraDocsExisting = merged;
+  input.value = '';
+}
+
+function handleWorkerExtraDocsChange(input) {
+  const container = document.getElementById('worker-extra-docs-list');
+  if (!container || !input.files || !input.files.length) return;
+  const pendingHtml = Array.from(input.files).map(file => {
+    if (file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file);
+      return `<div class="extra-doc-chip pending"><img src="${url}" title="${file.name}"><span class="extra-doc-pending-badge">new</span></div>`;
+    }
+    return `<div class="extra-doc-chip pending"><span class="extra-doc-icon">▤ ${file.name}</span><span class="extra-doc-pending-badge">new</span></div>`;
+  }).join('');
+  renderWorkerExtraDocsEdit(workerExtraDocsExisting);
+  container.insertAdjacentHTML('beforeend', pendingHtml);
+}
+
+// ============================================================
+// COMPETITION — NEW FLOW (competition-first, then add athletes)
+// ============================================================
+let currentCompetitionId = null;
+
+// Override loadCompetitions to use new card style
+async function loadCompetitions(filter) {
+  const list = document.getElementById('competitions-list');
+  list.innerHTML = '<div class="loading"><div class="spinner"></div> Berrnum e...</div>';
+
+  let query = sb.from('competitions').select('*, competition_participants(count)').order('date', { ascending: false });
+  const sport = document.getElementById('comp-filter-sport')?.value;
+  if (sport) query = query.eq('sport', sport);
+
+  const { data } = await query;
+  allCompetitions = data || [];
+
+  let filtered = allCompetitions;
+  const f = filter || document.getElementById('comp-search')?.value || '';
+  if (f) {
+    const q = f.toLowerCase();
+    filtered = allCompetitions.filter(c =>
+      (c.name||'').toLowerCase().includes(q) || (c.location||'').toLowerCase().includes(q)
+    );
+  }
+
+  if (!filtered.length) {
+    list.innerHTML = `<div style="color:var(--text3);padding:40px;text-align:center;font-size:14px">Мрцуйт chi grantsatsvel.</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(c => {
+    const participantCount = c.competition_participants?.[0]?.count || 0;
+    const dateStr = c.date ? new Date(c.date).toLocaleDateString('hy-AM') : '—';
+    return `
+    <div class="comp-item" onclick="openCompDetail('${c.id}')" style="cursor:pointer">
+      <div class="comp-medal">🏅</div>
+      <div class="comp-info">
+        <div class="comp-name">${c.name}</div>
+        <div class="comp-meta">
+          ${c.sport ? c.sport + ' · ' : ''}
+          ${c.location ? c.location + ' · ' : ''}
+          ${dateStr}
+          <span style="color:var(--gold);margin-left:8px">👥 ${participantCount} marzik</span>
+        </div>
+        ${c.notes ? `<div style="font-size:.78rem;color:var(--text3);margin-top:4px">${c.notes}</div>` : ''}
+      </div>
+      <div class="comp-actions">
+        <button class="comp-action-btn" onclick="event.stopPropagation();openEditCompetitionModal('${c.id}')" title="Khmbagrel">✎</button>
+        <button class="comp-action-btn del" onclick="event.stopPropagation();deleteCompetition('${c.id}')" title="Джnjel">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function handleCompSearch() {
+  const el = document.getElementById('comp-search');
+  if (el) loadCompetitions(el.value);
+}
+
+// Open competition detail page showing participants grouped by weight
+async function openCompDetail(id) {
+  currentCompetitionId = id;
+  showPage('comp-detail');
+  const content = document.getElementById('comp-detail-content');
+  content.innerHTML = '<div class="loading"><div class="spinner"></div> Berrnum e...</div>';
+
+  const [{ data: comp }, { data: parts }] = await Promise.all([
+    sb.from('competitions').select('*').eq('id', id).single(),
+    sb.from('competition_participants').select('*, athletes(name, surname, photo_url)').eq('competition_id', id).order('weight_class')
+  ]);
+
+  if (!comp) { content.innerHTML = '<p style="color:var(--text3)">Мрцуйт chi gtnyel.</p>'; return; }
+
+  const dateStr = comp.date ? new Date(comp.date).toLocaleDateString('hy-AM') : '—';
+
+  // Group participants by weight class
+  const byWeight = {};
+  (parts || []).forEach(p => {
+    const key = p.weight_class || 'Qash chi nshvats';
+    if (!byWeight[key]) byWeight[key] = [];
+    byWeight[key].push(p);
+  });
+
+  const weightGroups = Object.entries(byWeight).map(([weight, participants]) => {
+    const rows = participants.map(p => {
+      const a = p.athletes;
+      const initials = a ? `${a.name?.[0]||''}${a.surname?.[0]||''}`.toUpperCase() : '?';
+      const photoHtml = a?.photo_url
+        ? `<img src="${a.photo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+        : initials;
+      const medal = p.result ? getMedalEmoji(p.result) : '';
+      return `<tr>
+        <td>
+          <span class="ath-photo-thumb">${photoHtml}</span>
+          <span class="ath-name-cell">${a ? a.surname+' '+a.name : '—'}</span>
+        </td>
+        <td style="color:var(--gold);font-weight:700">${medal} ${p.result||'—'}</td>
+        <td style="color:var(--text3);font-size:.82rem">${p.notes||''}</td>
+        <td>
+          <button class="comp-action-btn" onclick="openEditParticipantModal('${p.id}')" title="Khmbagrel">✎</button>
+          <button class="comp-action-btn del" onclick="deleteParticipant('${p.id}')" title="Heracnel">✕</button>
+        </td>
+      </tr>`;
+    }).join('');
+
+    return `
+    <div class="detail-card" style="margin-bottom:16px">
+      <div class="detail-card-title" style="color:var(--gold)">⚖ ${weight} <span style="color:var(--text3);font-size:.8rem">(${participants.length} marzik)</span></div>
+      <table class="comp-table" style="margin-top:8px">
+        <thead><tr><th>Мarзик</th><th>Ardyunq</th><th>Nshumner</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+
+  const emptyMsg = parts && parts.length === 0
+    ? '<div class="empty-state"><div class="empty-icon">🥊</div><p>Мarziкner ch\'en avelvats. Сеghmek «+ Мarziк avely»</p></div>'
+    : '';
+
+  content.innerHTML = `
+  <div class="detail-card" style="margin-bottom:20px">
+    <div class="detail-card-title" style="font-size:1.3rem;color:var(--text1)">${comp.name}</div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:12px">
+      ${comp.sport    ? `<div><span style="color:var(--text3);font-size:.8rem">Мarзадзев</span><div style="color:var(--text1);font-weight:600">${comp.sport}</div></div>` : ''}
+      ${comp.date     ? `<div><span style="color:var(--text3);font-size:.8rem">Amsatyw</span><div style="color:var(--text1);font-weight:600">${dateStr}</div></div>` : ''}
+      ${comp.location ? `<div><span style="color:var(--text3);font-size:.8rem">Vayr</span><div style="color:var(--text1);font-weight:600">${comp.location}</div></div>` : ''}
+      <div><span style="color:var(--text3);font-size:.8rem">Мarziкner</span><div style="color:var(--gold);font-weight:700;font-size:1.2rem">${parts ? parts.length : 0}</div></div>
+    </div>
+    ${comp.notes ? `<div style="margin-top:12px;color:var(--text3);font-size:.88rem">${comp.notes}</div>` : ''}
+  </div>
+  ${weightGroups || emptyMsg}`;
+}
+
+function openNewCompetitionModal() {
+  document.getElementById('comp-modal-title').textContent = 'Nor Мрцуйт';
+  ['comp-id','comp-name','comp-date','comp-location','comp-notes'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('comp-sport').value = '';
+  document.getElementById('comp-error').textContent = '';
+  document.getElementById('comp-modal').style.display = 'flex';
+}
+
+async function openEditCompetitionModal(id) {
+  const { data: c } = await sb.from('competitions').select('*').eq('id', id).single();
+  if (!c) return;
+  document.getElementById('comp-modal-title').textContent = 'Мрцуйт Khmbagrel';
+  document.getElementById('comp-id').value       = c.id;
+  document.getElementById('comp-name').value     = c.name || '';
+  document.getElementById('comp-date').value     = c.date || '';
+  document.getElementById('comp-location').value = c.location || '';
+  document.getElementById('comp-sport').value    = c.sport || '';
+  document.getElementById('comp-notes').value    = c.notes || '';
+  document.getElementById('comp-error').textContent = '';
+  document.getElementById('comp-modal').style.display = 'flex';
+}
+
+function editCurrentCompetition() {
+  if (currentCompetitionId) openEditCompetitionModal(currentCompetitionId);
+}
+
+async function saveCompetition() {
+  const err  = document.getElementById('comp-error');
+  err.textContent = '';
+  const name = document.getElementById('comp-name').value.trim();
+  if (!name) { err.textContent = 'Мrцуйтi anunh partadir e.'; return; }
+
+  const payload = {
+    name,
+    date:     document.getElementById('comp-date').value     || null,
+    location: document.getElementById('comp-location').value.trim() || null,
+    sport:    document.getElementById('comp-sport').value    || null,
+    notes:    document.getElementById('comp-notes').value.trim()    || null,
+  };
+
+  const editId = document.getElementById('comp-id').value;
+  let compId = editId;
+  let dbError;
+
+  if (editId) {
+    const { error } = await sb.from('competitions').update(payload).eq('id', editId);
+    dbError = error;
+  } else {
+    const { data, error } = await sb.from('competitions').insert(payload).select().single();
+    dbError = error;
+    if (data) compId = data.id;
+  }
+
+  if (dbError) { err.textContent = `Skhal: ${dbError.message}`; return; }
+
+  closeCompModalDirect();
+  if (!editId && compId) {
+    // New competition: go straight to its detail page to start adding athletes
+    currentCompetitionId = compId;
+    showPage('comp-detail');
+    openCompDetail(compId);
+  } else {
+    loadCompetitions();
+    if (currentCompetitionId === editId) openCompDetail(editId);
+  }
+}
+
+async function deleteCompetition(id) {
+  if (!confirm('Джnjel mrtsuythe?')) return;
+  await sb.from('competition_participants').delete().eq('competition_id', id);
+  await sb.from('competitions').delete().eq('id', id);
+  showPage('competitions');
+  loadCompetitions();
+}
+
+async function deleteCurrentCompetition() {
+  if (currentCompetitionId) await deleteCompetition(currentCompetitionId);
+}
+
+// ── PARTICIPANT MODAL ────────────────────────────────────────────────────────
+async function openAddParticipantModal() {
+  if (!currentCompetitionId) return;
+  document.getElementById('participant-modal-title').textContent = 'Мarziк Avely Мrцуйтin';
+  document.getElementById('participant-id').value  = '';
+  document.getElementById('part-weight').value     = '';
+  document.getElementById('part-result').value     = '';
+  document.getElementById('part-notes').value      = '';
+  document.getElementById('participant-error').textContent = '';
+
+  const athletes = await getAthleteOptions();
+  const sel = document.getElementById('part-athlete');
+  sel.innerHTML = '<option value="">Yntrel marzik...</option>';
+  athletes.forEach(a => {
+    const o = document.createElement('option');
+    o.value = a.id;
+    o.textContent = `${a.surname}, ${a.name}${a.sport ? ' ('+a.sport+')' : ''}`;
+    sel.appendChild(o);
+  });
+  document.getElementById('participant-modal').style.display = 'flex';
+}
+
+async function openEditParticipantModal(partId) {
+  const { data: p } = await sb.from('competition_participants').select('*').eq('id', partId).single();
+  if (!p) return;
+  await openAddParticipantModal();
+  document.getElementById('participant-modal-title').textContent = 'Мarziк Khmbagrel';
+  document.getElementById('participant-id').value  = p.id;
+  document.getElementById('part-athlete').value    = p.athlete_id || '';
+  document.getElementById('part-weight').value     = p.weight_class || '';
+  document.getElementById('part-result').value     = p.result || '';
+  document.getElementById('part-notes').value      = p.notes || '';
+}
+
+async function saveParticipant() {
+  const err = document.getElementById('participant-error');
+  err.textContent = '';
+  const athleteId   = document.getElementById('part-athlete').value;
+  const weight      = document.getElementById('part-weight').value.trim();
+  if (!athleteId) { err.textContent = 'Yntrel marzik.'; return; }
+  if (!weight)    { err.textContent = 'Qashe partadir e.'; return; }
+
+  const payload = {
+    competition_id: currentCompetitionId,
+    athlete_id:     athleteId,
+    weight_class:   weight,
+    result:         document.getElementById('part-result').value.trim() || null,
+    notes:          document.getElementById('part-notes').value.trim()  || null,
+  };
+
+  const editId = document.getElementById('participant-id').value;
+  let dbError;
+
+  if (editId) {
+    const { error } = await sb.from('competition_participants').update(payload).eq('id', editId);
+    dbError = error;
+  } else {
+    const { error } = await sb.from('competition_participants').insert(payload);
+    dbError = error;
+  }
+
+  if (dbError) { err.textContent = `Skhal: ${dbError.message}`; return; }
+
+  closeParticipantModalDirect();
+  openCompDetail(currentCompetitionId);
+}
+
+async function deleteParticipant(partId) {
+  if (!confirm('Heracne′l marzikе mrcuythits?')) return;
+  await sb.from('competition_participants').delete().eq('id', partId);
+  openCompDetail(currentCompetitionId);
+}
+
+function closeParticipantModal(e) { if (e.target.id === 'participant-modal') closeParticipantModalDirect(); }
+function closeParticipantModalDirect() { document.getElementById('participant-modal').style.display = 'none'; }
+
+// ── patch showPage to handle comp-detail ────────────────────────────────────
+const _origShowPage = showPage;
+window.showPage = function(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const pageEl = document.getElementById('page-' + page);
+  if (pageEl) pageEl.classList.add('active');
+  const navItem = document.querySelector(`[data-page="${page}"]`);
+  if (navItem) navItem.classList.add('active');
+
+  if (page === 'dashboard')   loadDashboard();
+  if (page === 'athletes')    loadAthletes();
+  if (page === 'add-athlete' && !document.getElementById('athlete-id').value) resetAthleteForm();
+  if (page === 'coaches')     loadCoaches();
+  if (page === 'add-coach' && !document.getElementById('coach-id').value) resetCoachForm();
+  if (page === 'competitions') loadCompetitions();
+  if (page === 'workers')     loadWorkers();
+  if (page === 'add-worker' && !document.getElementById('worker-id').value) resetWorkerForm();
+};
+
+// Also patch fillCoachForm to use new gallery
+const _origFillCoachForm = fillCoachForm;
+window.fillCoachForm = function(c) {
+  _origFillCoachForm(c);
+  renderCoachExtraDocsEdit(c.extra_docs || []);
+};
+
+// Patch resetCoachForm to reset gallery
+const _origResetCoachForm = resetCoachForm;
+window.resetCoachForm = function() {
+  _origResetCoachForm();
+  renderCoachExtraDocsEdit([]);
+};
+
+// Patch fillWorkerForm to use new gallery
+const _origFillWorkerForm = fillWorkerForm;
+window.fillWorkerForm = function(w) {
+  _origFillWorkerForm(w);
+  renderWorkerExtraDocsEdit(w.extra_docs || []);
+};
+
+// Patch resetWorkerForm to reset gallery
+const _origResetWorkerForm = resetWorkerForm;
+window.resetWorkerForm = function() {
+  _origResetWorkerForm();
+  renderWorkerExtraDocsEdit([]);
+};
+
+// Also need competition_participants to have weight_class, result, notes columns
+// Run this SQL in Supabase:
+// ALTER TABLE competition_participants ADD COLUMN IF NOT EXISTS weight_class text;
+// ALTER TABLE competition_participants ADD COLUMN IF NOT EXISTS result text;
+// ALTER TABLE competition_participants ADD COLUMN IF NOT EXISTS notes text;
