@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ArmFighting Academy - Մուտք</title>
+<title>ArmPride - Մուտք</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Armenian:wght@400;500;600;700;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
@@ -126,17 +126,17 @@ body{
 
 <div class="login-card">
   <div class="login-logo">
-    <h1>ArmFighting Academy</h1>
-    <p>Կառավারման Համakарgіr</p>
+    <h1>ArmPride</h1>
+    <p>Հայաստանի Հպարտություն</p>
   </div>
 
-  <label class="field-label" for="email">Էleктронayin Пост</label>
+  <label class="field-label" for="email">Էլեկտրոնային փոստ</label>
   <input type="email" id="email" class="login-input" placeholder="your@email.com">
 
-  <label class="field-label" for="password">Gaghtnabарr</label>
+  <label class="field-label" for="password">Գաղտնաբառ</label>
   <input type="password" id="password" class="login-input" placeholder="••••••••">
 
-  <button class="login-btn" id="login-btn" onclick="handleLogin()">Мутk Gorcel</button>
+  <button class="login-btn" id="login-btn" onclick="handleLogin()">Մուտք գործել</button>
   <div id="login-error" class="login-error"></div>
 </div>
 
@@ -156,26 +156,24 @@ async function handleLogin() {
   errorDiv.textContent = '';
 
   if (!email || !password) {
-    errorDiv.textContent = 'Խндrum enk lrаcnel bolor dashtere';
+    errorDiv.textContent = 'Խնդրում ենք լրացնել բոլոր դաշտերը';
     return;
   }
 
-  btn.textContent = 'Мутk...';
+  btn.textContent = 'Մուտք...';
   btn.disabled = true;
 
   try {
     const { data, error } = await sb.auth.signInWithPassword({ email, password });
     if (error) throw error;
-    // Simple redirect — no popup, no new window
     window.location.replace('index.html');
   } catch (err) {
-    errorDiv.textContent = err.message || 'Skhаl mutk';
-    btn.textContent = 'Мутk Gorcel';
+    errorDiv.textContent = err.message || 'Սխալ մուտք';
+    btn.textContent = 'Մուտք գործել';
     btn.disabled = false;
   }
 }
 
-// Allow pressing Enter to log in
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('password').addEventListener('keydown', e => {
     if (e.key === 'Enter') handleLogin();
@@ -185,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// If already logged in, skip login page and go straight to dashboard
 (async () => {
   const { data } = await sb.auth.getSession();
   if (data.session) {
