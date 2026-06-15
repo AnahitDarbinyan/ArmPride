@@ -283,7 +283,7 @@ img{max-width:100%;display:block}
     <img src="logo.png" alt="ARMPRIDE Logo" class="sidebar-logo">
     <div class="sidebar-title">
       <h2>ARMPRIDE</h2>
-      <p>Կառավարման Համակարգ</p>
+      <p>Հայաստանի Հպարտություն</p>
     </div>
   </div>
   <nav class="sidebar-nav">
@@ -329,7 +329,7 @@ img{max-width:100%;display:block}
       <div class="stat-card"><div class="stat-label">Այս ամիս</div><div class="stat-value" id="stat-month">—</div><div class="stat-sub">Նոր մարզիկներ</div></div>
     </div>
     <div class="dashboard-grid">
-      <div class="dash-card"><h3>Մարզաձևերի Բաշխատարում</h3><div id="sport-breakdown"></div></div>
+      <div class="dash-card"><h3>Մարզաձևերի Բաշխում</h3><div id="sport-breakdown"></div></div>
       <div class="dash-card"><h3>Վերջին Ավելացվածներ</h3><div id="recent-athletes"></div></div>
     </div>
   </div>
@@ -343,7 +343,7 @@ img{max-width:100%;display:block}
 
     <!-- Filter row 1: search + sort -->
     <div class="filter-bar">
-      <input class="search-input" id="search-input" placeholder="Որոնել անուն, ազգանուն, մ/անձ. համար..." oninput="applyAthleteFilters()">
+      <input class="search-input" id="search-input" placeholder="Որոնել անուն, ազգանուն, մարզական անձնագրի համար..." oninput="applyAthleteFilters()">
       <button class="sort-btn active" id="sort-asc-btn" onclick="setAthleteSort('asc')" title="Ըստ Մ/Անձ. Համար ա→ֈ">ID ↑</button>
       <button class="sort-btn" id="sort-desc-btn" onclick="setAthleteSort('desc')" title="Ըստ Մ/Անձ. Համար ֈ→ա">ID ↓</button>
     </div>
@@ -354,18 +354,18 @@ img{max-width:100%;display:block}
         <option value="">Բոլոր մարզ. միջոցներ</option>
       </select>
       <select class="filter-select" id="filter-gender" onchange="applyAthleteFilters()">
-        <option value="">Բոլոր սեռ</option>
+        <option value="">Բոլոր/Սեռ</option>
         <option value="Արական">Արական</option>
         <option value="Իգական">Իգական</option>
       </select>
       <select class="filter-select" id="filter-coach" onchange="applyAthleteFilters()">
-        <option value="">Բոլոր մարզիչ</option>
+        <option value="">Բոլոր/Մարզիչ</option>
       </select>
       <select class="filter-select" id="filter-year" onchange="applyAthleteFilters()">
-        <option value="">Բոլոր տարի</option>
+        <option value="">Բոլոր/Տարի</option>
       </select>
       <select class="filter-select" id="filter-month" onchange="applyAthleteFilters()">
-        <option value="">Բոլոր ամիս</option>
+        <option value="">Բոլոր/Ամիս</option>
         <option value="1">Հունվար</option>
         <option value="2">Փետրվար</option>
         <option value="3">Մարտ</option>
@@ -380,7 +380,7 @@ img{max-width:100%;display:block}
         <option value="12">Դեկտեմբեր</option>
       </select>
       <select class="filter-select" id="filter-status" onchange="applyAthleteFilters()">
-        <option value="">Բոլոր կարգ.</option>
+        <option value="">Բոլոր/Կարգավիճակ</option>
         <option value="Ակտիվ">Ակտիվ</option>
         <option value="Արխիվ">Արխիվ</option>
       </select>
@@ -436,15 +436,15 @@ img{max-width:100%;display:block}
           </div>
           <div class="form-group">
             <label>Մարզական Անձնագրի Համար (ID)</label>
-            <input class="form-input" id="f-passport" type="text" placeholder="Սերիա և համար">
+            <input class="form-input" id="f-passport" type="text" placeholder="Մարզական Անձնագրի Համար">
           </div>
           <div class="form-group">
-            <label>Անձնագիր / ID 2</label>
-            <input class="form-input" id="f-athlete-number" type="text" placeholder="Լրացուցիչ ID համար">
+            <label>Ծննդյան վկայականի սերիա</label>
+            <input class="form-input" id="f-athlete-number" type="text" placeholder="ԱԲ №123456">
           </div>
           <div class="form-group">
-            <label>Ազգություն</label>
-            <input class="form-input" id="f-nationality" type="text" placeholder="Ազգություն">
+            <label>Ընդունման Ամսաթիվ</label>
+            <input class="form-input" id="f-gotaccepted" type="date">
           </div>
           <div class="form-group">
             <label>Հեռախոս</label>
@@ -461,11 +461,11 @@ img{max-width:100%;display:block}
         <div class="form-section-title">Մարզական Տվյալներ</div>
         <div class="form-grid">
           <div class="form-group">
-            <label>Մարզական Միջոց</label>
-            <select class="form-select" id="f-sport"><option value="">Ընտրել մարզական միջոց</option></select>
+            <label>Մարզաձև</label>
+            <select class="form-select" id="f-sport"><option value="">Ընտրել մարզաձև</option></select>
           </div>
           <div class="form-group">
-            <label>Քաշ / Խումբ</label>
+            <label>Սկզբնական Քաշ</label>
             <input class="form-input" id="f-weight" type="text" placeholder="կգ">
           </div>
           <div class="form-group">
@@ -474,7 +474,7 @@ img{max-width:100%;display:block}
           </div>
           <div class="form-group">
             <label>Մարզիչ</label>
-            <input class="form-input" id="f-coach" type="text" placeholder="Մարզիչի անունը">
+            <input class="form-input" id="f-coach" type="text" placeholder="Մարզչի անունը">
           </div>
           <div class="form-group">
             <label>Մարզադպրոց</label>
@@ -500,7 +500,7 @@ img{max-width:100%;display:block}
 
       <!-- PARENT / GUARDIAN SECTION -->
       <div class="form-section">
-        <div class="form-section-title">Ծնող / Խնամակալ 1</div>
+        <div class="form-section-title">Ծնող / Խնամակալ </div>
         <div class="form-grid">
           <div class="form-group">
             <label>Անուն</label>
@@ -532,7 +532,7 @@ img{max-width:100%;display:block}
               <input type="file" id="photo-input" accept="image/*" onchange="previewFile(this,'photo-preview','photo-placeholder')">
               <div class="upload-placeholder" id="photo-placeholder">
                 <span class="upload-icon">📷</span>
-                <span class="upload-label">Լուսանկար ավելացնել</span>
+                <span class="upload-label">Ավելացնել լուսանկար</span>
                 <span class="upload-sublabel">JPG, PNG, WEBP</span>
               </div>
               <img id="photo-preview" class="upload-preview" style="display:none">
@@ -558,7 +558,7 @@ img{max-width:100%;display:block}
         </div>
 
         <div class="form-group" style="margin-top:18px">
-          <label>Այլ Փաստաթղթեր (անսահմանափակ)</label>
+          <label>Այլ Փաստաթղթեր</label>
           <div class="upload-zone">
             <input type="file" id="extra-docs-input" accept="image/*,application/pdf" multiple onchange="handleExtraDocsChange(this)">
             <div class="upload-placeholder">
@@ -588,13 +588,13 @@ img{max-width:100%;display:block}
   <!-- COACHES LIST -->
   <div id="page-coaches" class="page">
     <div class="page-header">
-      <h1>Մарзիчнер</h1>
-      <button class="btn-primary" onclick="showPage('add-coach')">+ Ավелacněl</button>
+      <h1>Մարզիչներ</h1>
+      <button class="btn-primary" onclick="showPage('add-coach')">+ Ավելացնել</button>
     </div>
     <div class="filter-bar">
-      <input class="search-input" id="coach-search-input" placeholder="Որоnel anun, azganun..." oninput="handleCoachSearch()">
+      <input class="search-input" id="coach-search-input" placeholder="Որոնել անուն, ազգանուն..." oninput="handleCoachSearch()">
       <select class="filter-select" id="coach-filter-sport" onchange="loadCoaches()">
-        <option value="">Bolory marzadzěvěr</option>
+        <option value="">Բոլոր մարզաձևեր</option>
       </select>
     </div>
     <div class="athletes-grid" id="coaches-grid"></div>
@@ -604,8 +604,8 @@ img{max-width:100%;display:block}
   <div id="page-coach-detail" class="page">
     <div class="detail-header">
       <button class="back-btn" onclick="showPage('coaches')">← Հet</button>
-      <button class="btn-secondary" onclick="editCurrentCoach()">✎ Хмбagrel</button>
-      <button class="btn-danger" onclick="deleteCurrentCoach()">✕ Джnjel</button>
+      <button class="btn-secondary" onclick="editCurrentCoach()">✎ Խմբագրել</button>
+      <button class="btn-danger" onclick="deleteCurrentCoach()">✕ Ջնջել</button>
     </div>
     <div id="coach-detail-content"></div>
   </div>
@@ -613,80 +613,80 @@ img{max-width:100%;display:block}
   <!-- ADD/EDIT COACH -->
   <div id="page-add-coach" class="page">
     <div class="page-header">
-      <h1 id="coach-form-title">Avel Марзич</h1>
+      <h1 id="coach-form-title">Ավելացնել մարզիչ</h1>
     </div>
     <div class="form-container">
       <input type="hidden" id="coach-id">
 
       <div class="form-section">
-        <div class="form-section-title">Անձнakan Tvyalner</div>
+        <div class="form-section-title">Անձական Տվյալներ</div>
         <div class="form-grid">
           <div class="form-group">
-            <label>Անun <span class="req">*</span></label>
-            <input class="form-input" id="fc-name" type="text" placeholder="Անun">
+            <label>Անուն <span class="req">*</span></label>
+            <input class="form-input" id="fc-name" type="text" placeholder="Անուն">
           </div>
           <div class="form-group">
-            <label>Азгануn <span class="req">*</span></label>
-            <input class="form-input" id="fc-surname" type="text" placeholder="Азгануn">
+            <label>Ազգանուն<span class="req">*</span></label>
+            <input class="form-input" id="fc-surname" type="text" placeholder="Ազգանուն">
           </div>
           <div class="form-group">
-            <label>Hayranuhn</label>
-            <input class="form-input" id="fc-father-name" type="text" placeholder="Hayranuhn">
+            <label>Հայրանուն</label>
+            <input class="form-input" id="fc-father-name" type="text" placeholder="Հայրանուն">
           </div>
           <div class="form-group">
-            <label>Tsnnndyan amsatyw</label>
+            <label>Ծննդյան ամսաթիվ</label>
             <input class="form-input" id="fc-birthdate" type="date">
           </div>
           <div class="form-group">
-            <label>Ser</label>
+            <label>Սեռ</label>
             <select class="form-select" id="fc-gender">
-              <option value="">Yntrel sere</option>
-              <option value="Արakakan">Արakakan</option>
-              <option value="Igakan">Igakan</option>
+              <option value="">Ընտրել սեռը</option>
+              <option value="Արական">Արական</option>
+              <option value="Իգական">Իգական</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Andznagan qart / ID</label>
-            <input class="form-input" id="fc-passport" type="text" placeholder="Seriya ev nomer">
+            <label>Անձնագրի համար</label>
+            <input class="form-input" id="fc-passport" type="text" placeholder="Սերիա/Համար">
           </div>
           <div class="form-group">
-            <label>Herakhos</label>
+            <label>Հեռախոս</label>
             <input class="form-input" id="fc-phone" type="tel" placeholder="+374...">
           </div>
           <div class="form-group">
-            <label>El. prost</label>
+            <label>Էլ. փոստ</label>
             <input class="form-input" id="fc-email" type="email" placeholder="email@example.com">
           </div>
         </div>
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">Маснагитакан Тvyalner</div>
+        <div class="form-section-title">Մասնագիտական Տվյալներ</div>
         <div class="form-grid">
           <div class="form-group">
-            <label>Мarzadzev</label>
-            <select class="form-select" id="fc-sport"><option value="">Yntrel marzadzeve</option></select>
+            <label>Մարզաձև</label>
+            <select class="form-select" id="fc-sport"><option value="">Ընտրել մարզաձև</option></select>
           </div>
           <div class="form-group">
-            <label>Orkakavorutyunh</label>
-            <input class="form-input" id="fc-qualification" type="text" placeholder="Orkakavorutyunh">
+            <label>Որակավորում</label>
+            <input class="form-input" id="fc-qualification" type="text" placeholder="Որակավորում">
           </div>
           <div class="form-group">
-            <label>Kretutyunh</label>
-            <input class="form-input" id="fc-education" type="text" placeholder="Bakalavrr / Мagistrros...">
+            <label>Կրթություն</label>
+            <input class="form-input" id="fc-education" type="text" placeholder="Բակալավր/Մագիստրատուրա...">
           </div>
         </div>
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">Lusankar</div>
+        <div class="form-section-title">Լուսանկար</div>
         <div class="form-group">
-          <label>Andznakan lusankar</label>
+          <label>Անձնական լուսանկար</label>
           <div class="upload-zone">
             <input type="file" id="coach-photo-input" accept="image/*" onchange="previewFile(this,'coach-photo-preview','coach-photo-placeholder')">
             <div class="upload-placeholder" id="coach-photo-placeholder">
               <span class="upload-icon">📷</span>
-              <span class="upload-label">Lusankar avely</span>
+              <span class="upload-label">Ավելացնել լուսանկար</span>
               <span class="upload-sublabel">JPG, PNG, WEBP</span>
             </div>
             <img id="coach-photo-preview" class="upload-preview" style="display:none">
@@ -695,15 +695,15 @@ img{max-width:100%;display:block}
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">Փաutatughtner</div>
+        <div class="form-section-title">Փաuտաթղթեր</div>
         <div class="form-group">
-          <label>Անձнагир / Пастатug (Лuсаnkar, PDF)</label>
+          <label>Անձնագիր և այլ Փաuտաթղթեր </label>
           <div class="upload-zone">
             <input type="file" id="coach-extra-docs-input" accept="image/*,application/pdf" multiple onchange="handleCoachExtraDocsChange(this)">
             <div class="upload-placeholder">
               <span class="upload-icon">📎</span>
-              <span class="upload-label">Avlj Пастатughtner (анsahmanafak)</span>
-              <span class="upload-sublabel">Каrоg eq yntrel mi qani fayл</span>
+              <span class="upload-label">Ավելացնել փաuտաթղթեր</span>
+              <span class="upload-sublabel">Կարող եք ընտրել մի քանի փաuտաթուղթ</span>
             </div>
           </div>
           <div class="extra-docs-list" id="coach-extra-docs-list"></div>
@@ -711,13 +711,13 @@ img{max-width:100%;display:block}
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">Nshumner</div>
-        <textarea class="form-textarea" id="fc-notes" placeholder="Nshumner..."></textarea>
+        <div class="form-section-title">Նշումներ</div>
+        <textarea class="form-textarea" id="fc-notes" placeholder="Նշումներ..."></textarea>
       </div>
 
       <div class="form-actions">
-        <button class="btn-primary" id="save-coach-btn" onclick="saveCoach()">✓ Pahhel</button>
-        <button class="btn-secondary" onclick="cancelCoachForm()">Chegharkel</button>
+        <button class="btn-primary" id="save-coach-btn" onclick="saveCoach()">✓ Պահել</button>
+        <button class="btn-secondary" onclick="cancelCoachForm()">Չեղարկել</button>
       </div>
       <div class="form-error" id="coach-form-error"></div>
       <div class="form-success" id="coach-form-success"></div>
@@ -727,11 +727,11 @@ img{max-width:100%;display:block}
   <!-- WORKERS LIST -->
   <div id="page-workers" class="page">
     <div class="page-header">
-      <h1>Аshkhatakich</h1>
-      <button class="btn-primary" onclick="showPage('add-worker')">+ Avely</button>
+      <h1>Աշխատակիցներ</h1>
+      <button class="btn-primary" onclick="showPage('add-worker')">+ Ավելացնել</button>
     </div>
     <div class="filter-bar">
-      <input class="search-input" id="worker-search-input" placeholder="Поиск имя, фамилия, должность..." oninput="handleWorkerSearch()">
+      <input class="search-input" id="worker-search-input" placeholder="Որոնել անուն, ազգանուն, պաշտոն..." oninput="handleWorkerSearch()">
     </div>
     <div class="athletes-grid" id="workers-grid"></div>
   </div>
@@ -739,9 +739,9 @@ img{max-width:100%;display:block}
   <!-- WORKER DETAIL -->
   <div id="page-worker-detail" class="page">
     <div class="detail-header">
-      <button class="back-btn" onclick="showPage('workers')">← Нет</button>
-      <button class="btn-secondary" onclick="editCurrentWorker()">✎ Хмб</button>
-      <button class="btn-danger" onclick="deleteCurrentWorker()">✕ Джнд</button>
+      <button class="back-btn" onclick="showPage('workers')">← Հետ</button>
+      <button class="btn-secondary" onclick="editCurrentWorker()">✎ Խմբագրել</button>
+      <button class="btn-danger" onclick="deleteCurrentWorker()">✕ Ջնջել</button>
     </div>
     <div id="worker-detail-content"></div>
   </div>
@@ -749,57 +749,57 @@ img{max-width:100%;display:block}
   <!-- ADD/EDIT WORKER -->
   <div id="page-add-worker" class="page">
     <div class="page-header">
-      <h1 id="worker-form-title">Avely Ashkhat</h1>
+      <h1 id="worker-form-title">Ավելացնել աշխատակից</h1>
     </div>
     <div class="form-container">
       <input type="hidden" id="worker-id">
       <div class="form-section">
-        <div class="form-section-title">Andznakan tvyalner</div>
+        <div class="form-section-title">Անձնական Տվյալներ</div>
         <div class="form-grid">
           <div class="form-group">
-            <label>Anunh <span class="req">*</span></label>
-            <input class="form-input" id="fw-name" type="text" placeholder="Anunh">
+            <label>Անուն <span class="req">*</span></label>
+            <input class="form-input" id="fw-name" type="text" placeholder="Անուն">
           </div>
           <div class="form-group">
-            <label>Azganunh <span class="req">*</span></label>
-            <input class="form-input" id="fw-surname" type="text" placeholder="Azganunh">
+            <label>Ազգանուն <span class="req">*</span></label>
+            <input class="form-input" id="fw-surname" type="text" placeholder="Ազգանուն">
           </div>
           <div class="form-group">
-            <label>Hayranun</label>
-            <input class="form-input" id="fw-father-name" type="text" placeholder="Hayranun">
+            <label>Հայրանուն</label>
+            <input class="form-input" id="fw-father-name" type="text" placeholder="Հայրանուն">
           </div>
           <div class="form-group">
-            <label>Pashtон <span class="req">*</span></label>
-            <input class="form-input" id="fw-title" type="text" placeholder="...">
+            <label>Պաշտոն <span class="req">*</span></label>
+            <input class="form-input" id="fw-title" type="text" placeholder="Պաշտոն">
           </div>
           <div class="form-group">
-            <label>Tsnnndyan or</label>
+            <label>Ծննդյան ամսաթիվ</label>
             <input class="form-input" id="fw-birthdate" type="date">
           </div>
           <div class="form-group">
-            <label>Andznagir / ID</label>
-            <input class="form-input" id="fw-passport" type="text" placeholder="...">
+            <label>Անձնագիր / ID</label>
+            <input class="form-input" id="fw-passport" type="text" placeholder="Սերիա/Համար">
           </div>
           <div class="form-group">
-            <label>Herakhos</label>
+            <label>Հեռախոս</label>
             <input class="form-input" id="fw-phone" type="tel" placeholder="+374...">
           </div>
           <div class="form-group">
-            <label>El. prost</label>
+            <label>Էլ. փոստ</label>
             <input class="form-input" id="fw-email" type="email" placeholder="email@example.com">
           </div>
 
         </div>
       </div>
       <div class="form-section">
-        <div class="form-section-title">Lusankar</div>
+        <div class="form-section-title">Լուսանկար</div>
         <div class="form-group">
-          <label>Andznagan lusankar</label>
+          <label>Անձնական լուսանկար</label>
           <div class="upload-zone">
             <input type="file" id="worker-photo-input" accept="image/*" onchange="previewFile(this,'worker-photo-preview','worker-photo-placeholder')">
             <div class="upload-placeholder" id="worker-photo-placeholder">
               <span class="upload-icon">📷</span>
-              <span class="upload-label">Lusankar avely</span>
+              <span class="upload-label">Ավելացնել լուսանկար</span>
               <span class="upload-sublabel">JPG, PNG, WEBP</span>
             </div>
             <img id="worker-photo-preview" class="upload-preview" style="display:none">
@@ -807,27 +807,27 @@ img{max-width:100%;display:block}
         </div>
       </div>
       <div class="form-section">
-        <div class="form-section-title">Փաutatughtner</div>
+        <div class="form-section-title">Փաստաթղթեր</div>
         <div class="form-group">
-          <label>Անձнагир / Пастатug (Лuсаnkar, PDF)</label>
+          <label>Անձնագիր և այլ Փաստաթղթեր</label>
           <div class="upload-zone">
             <input type="file" id="worker-extra-docs-input" accept="image/*,application/pdf" multiple onchange="handleWorkerExtraDocsChange(this)">
             <div class="upload-placeholder">
               <span class="upload-icon">📎</span>
-              <span class="upload-label">Avlj Пастатughtner (анsahmanafak)</span>
-              <span class="upload-sublabel">Каrоg eq yntrel mi qani fayл</span>
+              <span class="upload-label">Ավելացնել փաստաթուղթ</span>
+              <span class="upload-sublabel">Կարող եք ընտրել մի քանի փաստաթուղթ</span>
             </div>
           </div>
           <div class="extra-docs-list" id="worker-extra-docs-list"></div>
         </div>
       </div>
       <div class="form-section">
-        <div class="form-section-title">Nshumner</div>
-        <textarea class="form-textarea" id="fw-notes" placeholder="Nshumner..."></textarea>
+        <div class="form-section-title">Նշումներ</div>
+        <textarea class="form-textarea" id="fw-notes" placeholder="Նշումներ..."></textarea>
       </div>
       <div class="form-actions">
-        <button class="btn-primary" id="save-worker-btn" onclick="saveWorker()">✓ Pahh</button>
-        <button class="btn-secondary" onclick="cancelWorkerForm()">Chegharkel</button>
+        <button class="btn-primary" id="save-worker-btn" onclick="saveWorker()">✓ Պահել</button>
+        <button class="btn-secondary" onclick="cancelWorkerForm()">Չեղարկել</button>
       </div>
       <div class="form-error" id="worker-form-error"></div>
       <div class="form-success" id="worker-form-success"></div>
@@ -837,13 +837,13 @@ img{max-width:100%;display:block}
   <!-- COMPETITIONS -->
   <div id="page-competitions" class="page">
     <div class="page-header">
-      <h1>Մрцуйтнер</h1>
-      <button class="btn-primary" onclick="openNewCompetitionModal()">+ Nor Мрцуйт</button>
+      <h1>Մրցույթներ</h1>
+      <button class="btn-primary" onclick="openNewCompetitionModal()">+ Նոր մրցույթ</button>
     </div>
     <div class="filter-bar">
-      <input class="search-input" id="comp-search" placeholder="Мрцуйт, vayr..." oninput="handleCompSearch()">
+      <input class="search-input" id="comp-search" placeholder="Որոնել մրցույթ, վայր..." oninput="handleCompSearch()">
       <select class="filter-select" id="comp-filter-sport" onchange="loadCompetitions()">
-        <option value="">Bolory marzadzevner</option>
+        <option value="">Բոլոր մարզաձևեր</option>
       </select>
     </div>
     <div id="competitions-list"></div>
@@ -852,10 +852,10 @@ img{max-width:100%;display:block}
   <!-- COMPETITION DETAIL (participants by weight) -->
   <div id="page-comp-detail" class="page">
     <div class="detail-header">
-      <button class="back-btn" onclick="showPage('competitions')">← Нet</button>
-      <button class="btn-primary" onclick="openAddParticipantModal()">+ Мarziк avely</button>
-      <button class="btn-secondary" onclick="editCurrentCompetition()">✎ Хмбagrel</button>
-      <button class="btn-danger" onclick="deleteCurrentCompetition()">✕ Джnjel</button>
+      <button class="back-btn" onclick="showPage('competitions')">← Հետ</button>
+      <button class="btn-primary" onclick="openAddParticipantModal()">+ Ավելացնել մարզիկ</button>
+      <button class="btn-secondary" onclick="editCurrentCompetition()">✎ Խմբագրել</button>
+      <button class="btn-danger" onclick="deleteCurrentCompetition()">✕ Ջնջել</button>
     </div>
     <div id="comp-detail-content"></div>
   </div>
@@ -867,34 +867,34 @@ img{max-width:100%;display:block}
 <div class="modal" id="comp-modal" onclick="closeCompModal(event)">
   <div class="modal-inner" style="max-width:520px">
     <button class="modal-close" onclick="closeCompModalDirect()">✕</button>
-    <div class="modal-title" id="comp-modal-title">Nor Մрцуйт</div>
+    <div class="modal-title" id="comp-modal-title">Նոր մրցույթ</div>
     <input type="hidden" id="comp-id">
     <div class="form-grid">
       <div class="form-group" style="grid-column:1/-1">
-        <label>Մрцуйти Անunhn <span class="req">*</span></label>
-        <input class="form-input" id="comp-name" type="text" placeholder="Հայastaни Чемпионаt 2025...">
+        <label>Մրցույթի անուն<span class="req">*</span></label>
+        <input class="form-input" id="comp-name" type="text" placeholder="Եվրոպայի առաջնություն 2025...">
       </div>
       <div class="form-group">
-        <label>Amsatyw</label>
+        <label>Ամսաթիվ</label>
         <input class="form-input" id="comp-date" type="date">
       </div>
       <div class="form-group">
-        <label>Vayr</label>
-        <input class="form-input" id="comp-location" type="text" placeholder="Yerevan...">
+        <label>Վայր</label>
+        <input class="form-input" id="comp-location" type="text" placeholder="Երևան...">
       </div>
       <div class="form-group" style="grid-column:1/-1">
-        <label>Марзаdzev</label>
-        <select class="form-select" id="comp-sport"><option value="">Yntrel мarзадзев</option></select>
+        <label>Մարզաձև</label>
+        <select class="form-select" id="comp-sport"><option value="">Ընտրել մարզաձև</option></select>
       </div>
       <div class="form-group" style="grid-column:1/-1">
-        <label>Nshumner</label>
-        <textarea class="form-textarea" id="comp-notes" style="min-height:60px" placeholder="..."></textarea>
+        <label>Նշումներ</label>
+        <textarea class="form-textarea" id="comp-notes" style="min-height:60px" placeholder="Նշումներ..."></textarea>
       </div>
     </div>
     <div style="color:var(--red-light);font-size:.9rem;margin-top:8px" id="comp-error"></div>
     <div class="form-actions" style="margin-top:18px">
-      <button class="btn-primary" onclick="saveCompetition()">✓ Pahh u Avely Мarziкner</button>
-      <button class="btn-secondary" onclick="closeCompModalDirect()">Chegharkel</button>
+      <button class="btn-primary" onclick="saveCompetition()">✓ Պահել և ավելացնել մարզիկներ</button>
+      <button class="btn-secondary" onclick="closeCompModalDirect()">Չեղարկել</button>
     </div>
   </div>
 </div>
@@ -903,30 +903,30 @@ img{max-width:100%;display:block}
 <div class="modal" id="participant-modal" onclick="closeParticipantModal(event)">
   <div class="modal-inner" style="max-width:480px">
     <button class="modal-close" onclick="closeParticipantModalDirect()">✕</button>
-    <div class="modal-title" id="participant-modal-title">Мarziк Avely</div>
+    <div class="modal-title" id="participant-modal-title">Ավելացնել Մարզիկ</div>
     <input type="hidden" id="participant-id">
     <div class="form-grid">
       <div class="form-group" style="grid-column:1/-1">
-        <label>Мarziк <span class="req">*</span></label>
-        <select class="form-select" id="part-athlete"><option value="">Yntrel marzik...</option></select>
+        <label>Մարզիկ<span class="req">*</span></label>
+        <select class="form-select" id="part-athlete"><option value="">Ընտրել մարզիկ...</option></select>
       </div>
       <div class="form-group">
-        <label>Qash / Хumб <span class="req">*</span></label>
+        <label>Քաշ/Խումբ<span class="req">*</span></label>
         <input class="form-input" id="part-weight" type="text" placeholder="-74кg, +90кg...">
       </div>
       <div class="form-group">
-        <label>Ardyunq / Medal</label>
-        <input class="form-input" id="part-result" type="text" placeholder="Vosk, 1-in tegh...">
+        <label>Արդյունք / Մեդալ</label>
+        <input class="form-input" id="part-result" type="text" placeholder="1-ին տեղ / Ոսկի...">
       </div>
       <div class="form-group" style="grid-column:1/-1">
-        <label>Nshumner</label>
-        <input class="form-input" id="part-notes" type="text" placeholder="...">
+        <label>Նշումներ</label>
+        <input class="form-input" id="part-notes" type="text" placeholder="Նշումներ...">
       </div>
     </div>
     <div style="color:var(--red-light);font-size:.9rem;margin-top:8px" id="participant-error"></div>
     <div class="form-actions" style="margin-top:18px">
-      <button class="btn-primary" onclick="saveParticipant()">✓ Pahh</button>
-      <button class="btn-secondary" onclick="closeParticipantModalDirect()">Chegharkel</button>
+      <button class="btn-primary" onclick="saveParticipant()">✓ Պահել</button>
+      <button class="btn-secondary" onclick="closeParticipantModalDirect()">Չեղարկել</button>
     </div>
   </div>
 </div>
@@ -934,10 +934,10 @@ img{max-width:100%;display:block}
 <div class="modal" id="sport-modal" onclick="closeSportModal(event)">
   <div class="modal-inner">
     <button class="modal-close" onclick="closeSportModalDirect()">✕</button>
-    <div class="modal-title">Мarзадзевер</div>
+    <div class="modal-title">Մարզաձևեր</div>
     <div style="display:flex;gap:10px;margin-bottom:16px">
-      <input class="form-input" id="new-sport-name" placeholder="Nor marzadzev..." style="flex:1">
-      <button class="btn-primary" onclick="addSport()">+ Avely</button>
+      <input class="form-input" id="new-sport-name" placeholder="Նոր մարզաձև..." style="flex:1">
+      <button class="btn-primary" onclick="addSport()">+ Ավելացնել</button>
     </div>
     <div style="color:var(--red-light);font-size:.85rem;margin-bottom:10px" id="sport-modal-error"></div>
     <div id="sport-list-mgr"></div>
