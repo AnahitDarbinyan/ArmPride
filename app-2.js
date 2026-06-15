@@ -259,7 +259,7 @@ function populateCoachFilter() {
   if (!sel) return;
   const coaches = [...new Set(allAthletes.map(a => a.coach).filter(Boolean))].sort();
   const cur = sel.value;
-  sel.innerHTML = '<option value="">Բոլոր մարզիչներ</option>';
+  sel.innerHTML = '<option value="">Բոլոր/Մարզիչներ</option>';
   coaches.forEach(c => {
     const o = document.createElement('option');
     o.value = c; o.textContent = c;
@@ -277,7 +277,7 @@ function populateBirthYearFilter() {
       .filter(Boolean)
   )].sort((a, b) => b - a);
   const cur = sel.value;
-  sel.innerHTML = '<option value="">Բոլոր տարիներ</option>';
+  sel.innerHTML = '<option value="">Բոլոր/Տարիներ</option>';
   years.forEach(y => {
     const o = document.createElement('option');
     o.value = y; o.textContent = y;
@@ -360,8 +360,8 @@ function renderAthletesTable(athletes) {
     const photoHtml = a.photo_url
       ? `<img src="${a.photo_url}">`
       : initials;
-    const statusClass = a.status === 'Arxiv' ? 'status-archive' : 'status-active';
-    const statusLabel = a.status || 'Aktiv';
+    const statusClass = a.status === 'Արխիվ' ? 'status-archive' : 'status-active';
+    const statusLabel = a.status || 'Ակտիվ';
     const age = a.birthdate ? Math.floor((Date.now() - new Date(a.birthdate)) / 31557600000) : null;
     return `
     <tr onclick="openAthleteDetail('${a.id}')">
@@ -434,18 +434,17 @@ async function openAthleteDetail(id) {
     : `<div class="detail-photo">${initials}</div>`;
 
   const docBtns = [
-    a.passport_url ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${a.passport_url}')">▤ Andznagir</button>` : '',
-    a.parent1_id_url ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${a.parent1_id_url}')">▤ Ծնող 1 ID</button>` : '',
-    a.parent2_id_url ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${a.parent2_id_url}')">▤ Ծնող 2 ID</button>` : '',
+    a.passport_url ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${a.passport_url}')">▤ Անձնագիր</button>` : '',
+    a.parent1_id_url ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${a.parent1_id_url}')">▤ Ծնող ID</button>` : '',
   ].join('');
 
   const extraDocs = a.extra_docs || [];
   const extraDocsHtml = extraDocs.length ? `
-    <div class="detail-card-title" style="margin-top:14px">Pastatughtner (${extraDocs.length})</div>
+    <div class="detail-card-title" style="margin-top:14px">Փաստաթղթեր (${extraDocs.length})</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px">
       ${extraDocs.map((url, i) => {
         const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
-        const name  = `Pastataght ${i+1}`;
+        const name  = `Փաստաթուղթ ${i+1}`;
         return isImg
           ? `<img src="${url}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1.5px solid var(--border2);cursor:zoom-in" onclick="viewImage('${url}')" title="${name}">`
           : `<button class="btn-secondary" style="font-size:11px;padding:8px 10px" onclick="viewImage('${url}')">▤ ${name}</button>`;
@@ -454,7 +453,7 @@ async function openAthleteDetail(id) {
 
   const compsHtml = comps.length ? `
     <table class="comp-table">
-      <thead><tr><th>Мрцуйт</th><th>Amsatyw</th><th>Qash</th><th>Ardyunq</th></tr></thead>
+      <thead><tr><th>Մրցույթ</th><th>Ամսաթիվ</th><th>Քաշ</th><th>Արդյունք</th></tr></thead>
       <tbody>
         ${comps.map(p => `<tr>
           <td>${p.competitions.name}</td>
@@ -463,24 +462,19 @@ async function openAthleteDetail(id) {
           <td style="color:var(--gold);font-weight:700">${p.result ? getMedalEmoji(p.result)+' '+p.result : '—'}</td>
         </tr>`).join('')}
       </tbody>
-    </table>` : '<p style="color:var(--text3);font-size:13px">Мрцуйт chi grantsatsvel.</p>';
+    </table>` : '<p style="color:var(--text3);font-size:13px">Մրցույթ չի գրանցվել.</p>';
 
-  const statusClass = a.status === 'Arxiv' ? 'status-archive' : 'status-active';
-  const statusLabel = a.status || 'Aktiv';
+  const statusClass = a.status === 'Արխիվ' ? 'status-archive' : 'status-active';
+  const statusLabel = a.status || 'Ակտիվ';
 
   const parentsHtml = (a.parent1_name || a.parent2_name) ? `
     <div class="detail-card">
       <div class="detail-card-title">Ծնող / Խնամակալ Տվյալներ</div>
       <div class="detail-fields-grid">
         ${a.parent1_name || a.parent1_surname ? `
-          <div class="detail-field"><span class="detail-field-key">Ծնող 1 Անուն Ազգանուն</span><span class="detail-field-val">${a.parent1_name||''} ${a.parent1_surname||''}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Ծնող 1 ID</span><span class="detail-field-val">${a.parent1_passport||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Ծնող 1 Հեռախոս</span><span class="detail-field-val">${a.parent1_phone||'—'}</span></div>
-        ` : ''}
-        ${a.parent2_name || a.parent2_surname ? `
-          <div class="detail-field"><span class="detail-field-key">Ծնող 2 Անուն Ազգանուն</span><span class="detail-field-val">${a.parent2_name||''} ${a.parent2_surname||''}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Ծնող 2 ID</span><span class="detail-field-val">${a.parent2_passport||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Ծնող 2 Հեռախոս</span><span class="detail-field-val">${a.parent2_phone||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Ծնողի անուն ազգանուն</span><span class="detail-field-val">${a.parent1_name||''} ${a.parent1_surname||''}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Ծնող ID</span><span class="detail-field-val">${a.parent1_passport||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Ծնող Հեռախոս</span><span class="detail-field-val">${a.parent1_phone||'—'}</span></div>
         ` : ''}
       </div>
     </div>` : '';
@@ -490,44 +484,44 @@ async function openAthleteDetail(id) {
     <div class="detail-sidebar">
       ${photoEl}
       <div class="detail-full-name">${a.name} ${a.surname}</div>
-      <div class="detail-sport-badge">${a.sport || 'Мarзadзev chka'}</div>
+      <div class="detail-sport-badge">${a.sport || 'Մարզաձև չկա'}</div>
       <div style="text-align:center;margin-top:4px"><span class="status-badge ${statusClass}">${statusLabel}</span></div>
       <div class="detail-meta-list">
-        ${age ? `<div class="detail-meta-item"><span class="detail-meta-key">Tariq</span><span class="detail-meta-val">${age}</span></div>` : ''}
-        ${a.gender ? `<div class="detail-meta-item"><span class="detail-meta-key">Ser</span><span class="detail-meta-val">${a.gender}</span></div>` : ''}
-        ${a.weight_class ? `<div class="detail-meta-item"><span class="detail-meta-key">Qash</span><span class="detail-meta-val">${a.weight_class}</span></div>` : ''}
-        ${a.rank ? `<div class="detail-meta-item"><span class="detail-meta-key">Kochum</span><span class="detail-meta-val">${a.rank}</span></div>` : ''}
-        ${a.coach ? `<div class="detail-meta-item"><span class="detail-meta-key">Мarзich</span><span class="detail-meta-val">${a.coach}</span></div>` : ''}
-        ${a.school ? `<div class="detail-meta-item"><span class="detail-meta-key">Dprroc</span><span class="detail-meta-val">${a.school}</span></div>` : ''}
-        ${a.passport_id ? `<div class="detail-meta-item"><span class="detail-meta-key">Мarзakan Нomer</span><span class="detail-meta-val" style="color:var(--gold);font-weight:700">${a.passport_id}</span></div>` : ''}
-        ${a.athlete_number ? `<div class="detail-meta-item"><span class="detail-meta-key">ID 2</span><span class="detail-meta-val">${a.athlete_number}</span></div>` : ''}
+        ${age ? `<div class="detail-meta-item"><span class="detail-meta-key">Տարիք</span><span class="detail-meta-val">${age}</span></div>` : ''}
+        ${a.gender ? `<div class="detail-meta-item"><span class="detail-meta-key">Սեռ</span><span class="detail-meta-val">${a.gender}</span></div>` : ''}
+        ${a.weight_class ? `<div class="detail-meta-item"><span class="detail-meta-key">Քաշ</span><span class="detail-meta-val">${a.weight_class}</span></div>` : ''}
+        ${a.rank ? `<div class="detail-meta-item"><span class="detail-meta-key">Կոչում</span><span class="detail-meta-val">${a.rank}</span></div>` : ''}
+        ${a.coach ? `<div class="detail-meta-item"><span class="detail-meta-key">Մարզիչ</span><span class="detail-meta-val">${a.coach}</span></div>` : ''}
+        ${a.school ? `<div class="detail-meta-item"><span class="detail-meta-key">Դպրոց</span><span class="detail-meta-val">${a.school}</span></div>` : ''}
+        ${a.passport_id ? `<div class="detail-meta-item"><span class="detail-meta-key">Մարզական անձնագրի համար</span><span class="detail-meta-val" style="color:var(--gold);font-weight:700">${a.passport_id}</span></div>` : ''}
+        ${a.athlete_number ? `<div class="detail-meta-item"><span class="detail-meta-key">Ծննդյան վկայականի համար</span><span class="detail-meta-val">${a.athlete_number}</span></div>` : ''}
       </div>
       ${docBtns}
       ${extraDocsHtml}
     </div>
     <div class="detail-main">
       <div class="detail-card">
-        <div class="detail-card-title">Andznakan Tvyalner</div>
+        <div class="detail-card-title">Անձնական Տվյալներ</div>
         <div class="detail-fields-grid">
-          <div class="detail-field"><span class="detail-field-key">Anunh Azganunh</span><span class="detail-field-val">${a.name} ${a.surname}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Мarзakan Andznagri Нomer</span><span class="detail-field-val" style="color:var(--gold);font-weight:700">${a.passport_id||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">ID 2</span><span class="detail-field-val">${a.athlete_number||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Tsnnndyan Amsatyw</span><span class="detail-field-val">${a.birthdate ? new Date(a.birthdate).toLocaleDateString('hy-AM') : '—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Ser</span><span class="detail-field-val">${a.gender||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Herakhos</span><span class="detail-field-val">${a.phone||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">El. Prost</span><span class="detail-field-val">${a.email||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Мarзadзev</span><span class="detail-field-val">${a.sport||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Мarзadprroc</span><span class="detail-field-val">${a.school||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Avely</span><span class="detail-field-val">${new Date(a.created_at).toLocaleDateString('hy-AM')}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Անուն Ազգանուն</span><span class="detail-field-val">${a.name} ${a.surname}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Մարզական անձնագրի համար</span><span class="detail-field-val" style="color:var(--gold);font-weight:700">${a.passport_id||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Ծննդյան վկայականի համար</span><span class="detail-field-val">${a.athlete_number||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Ծննդյան ամսաթիվ</span><span class="detail-field-val">${a.birthdate ? new Date(a.birthdate).toLocaleDateString('hy-AM') : '—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Սեռ</span><span class="detail-field-val">${a.gender||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Հեռախոս</span><span class="detail-field-val">${a.phone||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Էլ. փոստ</span><span class="detail-field-val">${a.email||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Մարզաձև</span><span class="detail-field-val">${a.sport||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Մարզադպրոց</span><span class="detail-field-val">${a.school||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Ավելացվել է</span><span class="detail-field-val">${new Date(a.created_at).toLocaleDateString('hy-AM')}</span></div>
         </div>
         ${a.notes ? `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
-          <div class="detail-field-key" style="margin-bottom:6px">Nshumner</div>
+          <div class="detail-field-key" style="margin-bottom:6px">Նշումներ</div>
           <div style="font-size:13px;color:var(--text2)">${a.notes}</div></div>` : ''}
       </div>
       ${parentsHtml}
       <div class="detail-card">
         <div class="detail-card-title" style="display:flex;justify-content:space-between;align-items:center">
-          Мрцуйтнер (${comps.length})</div>
+          Մրցույթներ (${comps.length})</div>
         ${compsHtml}
       </div>
     </div>
@@ -537,7 +531,7 @@ async function openAthleteDetail(id) {
 function editCurrentAthlete() {
   if (!currentAthleteId) return;
   const a = allAthletes.find(x => x.id === currentAthleteId);
-  if (a) { fillAthleteForm(a); showPage('add-athlete'); document.getElementById('form-title').textContent = 'Khmbagrel Marzik'; }
+  if (a) { fillAthleteForm(a); showPage('add-athlete'); document.getElementById('form-title').textContent = 'Խմբագրել մարզիկ'; }
   else   { loadAthleteForEdit(currentAthleteId); }
 }
 
@@ -546,7 +540,7 @@ async function loadAthleteForEdit(id) {
   if (!a) return;
   fillAthleteForm(a);
   showPage('add-athlete');
-  document.getElementById('form-title').textContent = 'Khmbagrel Marzik';
+  document.getElementById('form-title').textContent = 'Խմբագրել մարզիկ';
 }
 
 function fillAthleteForm(a) {
@@ -574,7 +568,7 @@ function fillAthleteForm(a) {
   const schoolSel = document.getElementById('f-school');
   if (schoolSel) schoolSel.value = a.school || '';
   const statusSel = document.getElementById('f-status');
-  if (statusSel) statusSel.value = a.status || 'Aktiv';
+  if (statusSel) statusSel.value = a.status || 'Ակտիվ';
 
   // Parent 1
   setVal('f-parent1-name',     a.parent1_name);
@@ -608,8 +602,8 @@ function setVal(id, val) {
 async function deleteCurrentAthlete() {
   if (!currentAthleteId) return;
   const a    = allAthletes.find(x => x.id === currentAthleteId);
-  const name = a ? `${a.name} ${a.surname}` : 'ays marzik';
-  if (!confirm(`Джnjel ${name}?`)) return;
+  const name = a ? `${a.name} ${a.surname}` : 'այս մարզիկ';
+  if (!confirm(`Ջնջել ${name}?`)) return;
   await sb.from('competition_participants').delete().eq('athlete_id', currentAthleteId);
   await sb.from('competitions').delete().eq('athlete_id', currentAthleteId);
   await sb.from('athletes').delete().eq('id', currentAthleteId);
@@ -621,7 +615,7 @@ async function deleteCurrentAthlete() {
 // ============================================================
 function resetAthleteForm() {
   document.getElementById('athlete-id').value = '';
-  document.getElementById('form-title').textContent = 'Avely Marzik';
+  document.getElementById('form-title').textContent = 'Ավելացնել մարզիկ';
   ['f-name','f-surname','f-father-name','f-birthdate','f-passport','f-athlete-number','f-nationality',
    'f-phone','f-email','f-weight','f-rank','f-coach','f-notes',
    'f-parent1-name','f-parent1-surname','f-parent1-passport','f-parent1-phone',
@@ -636,7 +630,7 @@ function resetAthleteForm() {
   const schoolEl = document.getElementById('f-school');
   if (schoolEl) schoolEl.value = '';
   const statusEl = document.getElementById('f-status');
-  if (statusEl) statusEl.value = 'Aktiv';
+  if (statusEl) statusEl.value = 'Ակտիվ';
 
   ['photo-input','passport-input','extra-docs-input'].forEach(id => {
     const el = document.getElementById(id);
@@ -671,10 +665,10 @@ async function saveAthlete() {
 
   const name    = document.getElementById('f-name').value.trim();
   const surname = document.getElementById('f-surname').value.trim();
-  if (!name || !surname) { err.textContent = 'Anunhe ev azganunh partadir en.'; return; }
+  if (!name || !surname) { err.textContent = 'Անունը և ազգանունը պարտադիր են.'; return; }
 
   const originalLabel = btn.innerHTML;
-  btn.innerHTML = '⏳ Pahvum e...'; btn.disabled = true;
+  btn.innerHTML = '⏳ Պահվում է...'; btn.disabled = true;
 
   const payload = {
     name, surname,
@@ -691,7 +685,7 @@ async function saveAthlete() {
     coach:        document.getElementById('f-coach').value.trim()       || null,
     notes:        document.getElementById('f-notes').value.trim()       || null,
     school:       document.getElementById('f-school')?.value            || null,
-    status:       document.getElementById('f-status')?.value            || 'Aktiv',
+    status:       document.getElementById('f-status')?.value            || 'Ակտիվ',
     // Parents
     parent1_name:    document.getElementById('f-parent1-name')?.value.trim()    || null,
     parent1_surname: document.getElementById('f-parent1-surname')?.value.trim() || null,
@@ -715,11 +709,11 @@ async function saveAthlete() {
       dbError = error;
       if (data) athleteId = data.id;
     }
-  } catch (e) { dbError = { message: e.message || 'Anspaselي skhal' }; }
+  } catch (e) { dbError = { message: e.message || 'Անսպասելի սխալ' }; }
 
   if (dbError) {
     console.error('Supabase error:', dbError);
-    err.textContent = `Skhal: ${dbError.message}`;
+    err.textContent = `Սխալ: ${dbError.message}`;
     btn.innerHTML = originalLabel; btn.disabled = false;
     return;
   }
@@ -732,7 +726,7 @@ async function saveAthlete() {
   }
 
   btn.innerHTML = originalLabel; btn.disabled = false;
-  suc.textContent = editId ? 'Marzikey tharrmacvats e ✓' : 'Marzikey pahvats e ✓';
+  suc.textContent = editId ? 'Մարզիկը թարմացված է ✓' : 'Մարզիկը պահված է ✓';
   setTimeout(() => showPage('athletes'), 1200);
 }
 
@@ -753,7 +747,7 @@ async function uploadAthleteFile(inputId, athleteId, bucket, column) {
 // ============================================================
 async function loadCoaches(filter = '') {
   const grid = document.getElementById('coaches-grid');
-  grid.innerHTML = '<div class="loading"><div class="spinner"></div> Berrnum e...</div>';
+  grid.innerHTML = '<div class="loading"><div class="spinner"></div> Բեռնում է...</div>';
 
   let query = sb.from('coaches').select('*').order('surname');
   const sport = document.getElementById('coach-filter-sport')?.value;
@@ -772,7 +766,7 @@ async function loadCoaches(filter = '') {
   }
 
   if (!filtered.length) {
-    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">◈</div><p>${filter ? 'Мarзich chi gtnyel' : 'Мarзich chka, avely arajine'}</p></div>`;
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">◈</div><p>${filter ? 'Մարզիչ չի գտնվել' : 'Մարզիչ չկա, ավելացնել.'}</p></div>`;
     return;
   }
 
@@ -804,10 +798,10 @@ async function openCoachDetail(id) {
   showPage('coach-detail');
 
   const content = document.getElementById('coach-detail-content');
-  content.innerHTML = '<div class="loading"><div class="spinner"></div> Berrnum e...</div>';
+  content.innerHTML = '<div class="loading"><div class="spinner"></div> Բեռնում է...</div>';
 
   const { data: c } = await sb.from('coaches').select('*').eq('id', id).single();
-  if (!c) { content.innerHTML = '<p style="color:var(--text3)">Мarzichy chi gtnyel.</p>'; return; }
+  if (!c) { content.innerHTML = '<p style="color:var(--text3)">Մարզիչը չի գտնվել.</p>'; return; }
 
   const initials = `${c.name?.[0]||''}${c.surname?.[0]||''}`.toUpperCase();
   const age      = c.birthdate ? Math.floor((Date.now() - new Date(c.birthdate)) / 31557600000) : null;
@@ -819,7 +813,7 @@ async function openCoachDetail(id) {
   const docBtns = [
     ...((c.extra_docs||[]).map((url,i) => {
       const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
-      const label = isImg ? `🖼 Նkaragir ${i+1}` : `▤ Pastataght ${i+1}`;
+      const label = isImg ? `🖼 Նկար ${i+1}` : `▤ Փաստաթուղթ ${i+1}`;
       return `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${url}')">${label}</button>`;
     })),
   ].join('');
@@ -829,30 +823,30 @@ async function openCoachDetail(id) {
     <div class="detail-sidebar">
       ${photoEl}
       <div class="detail-full-name">${c.name} ${c.surname}</div>
-      <div class="detail-sport-badge">${c.sport||'Мarзadзev chka'}</div>
+      <div class="detail-sport-badge">${c.sport||'Մարզաձև չկա'}</div>
       <div class="detail-meta-list">
-        ${age ? `<div class="detail-meta-item"><span class="detail-meta-key">Tariq</span><span class="detail-meta-val">${age}</span></div>` : ''}
-        ${c.gender        ? `<div class="detail-meta-item"><span class="detail-meta-key">Ser</span><span class="detail-meta-val">${c.gender}</span></div>` : ''}
-        ${c.qualification ? `<div class="detail-meta-item"><span class="detail-meta-key">Orkakavorut.</span><span class="detail-meta-val">${c.qualification}</span></div>` : ''}
-        ${c.education     ? `<div class="detail-meta-item"><span class="detail-meta-key">Kretutyun</span><span class="detail-meta-val">${c.education}</span></div>` : ''}
-        ${c.phone         ? `<div class="detail-meta-item"><span class="detail-meta-key">Herakhos</span><span class="detail-meta-val">${c.phone}</span></div>` : ''}
-        ${c.email         ? `<div class="detail-meta-item"><span class="detail-meta-key">El. Prost</span><span class="detail-meta-val">${c.email}</span></div>` : ''}
+        ${age ? `<div class="detail-meta-item"><span class="detail-meta-key">Տարիք</span><span class="detail-meta-val">${age}</span></div>` : ''}
+        ${c.gender        ? `<div class="detail-meta-item"><span class="detail-meta-key">Սեռ</span><span class="detail-meta-val">${c.gender}</span></div>` : ''}
+        ${c.qualification ? `<div class="detail-meta-item"><span class="detail-meta-key">Որակավորում</span><span class="detail-meta-val">${c.qualification}</span></div>` : ''}
+        ${c.education     ? `<div class="detail-meta-item"><span class="detail-meta-key">Կրթություն</span><span class="detail-meta-val">${c.education}</span></div>` : ''}
+        ${c.phone         ? `<div class="detail-meta-item"><span class="detail-meta-key">Հեռախոս</span><span class="detail-meta-val">${c.phone}</span></div>` : ''}
+        ${c.email         ? `<div class="detail-meta-item"><span class="detail-meta-key">Էլ. փոստ</span><span class="detail-meta-val">${c.email}</span></div>` : ''}
       </div>
       ${docBtns}
     </div>
     <div class="detail-main">
       <div class="detail-card">
-        <div class="detail-card-title">Andznakan Tvyalner</div>
+        <div class="detail-card-title">Անձնական Տվյալներ</div>
         <div class="detail-fields-grid">
-          <div class="detail-field"><span class="detail-field-key">Anunh Azganunh</span><span class="detail-field-val">${c.name} ${c.surname}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Andznagir / ID</span><span class="detail-field-val">${c.passport_id||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Tsnnndyan Amsatyw</span><span class="detail-field-val">${c.birthdate ? new Date(c.birthdate).toLocaleDateString('hy-AM') : '—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Herakhos</span><span class="detail-field-val">${c.phone||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">El. Prost</span><span class="detail-field-val">${c.email||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Avely</span><span class="detail-field-val">${new Date(c.created_at).toLocaleDateString('hy-AM')}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Անուն Ազգանուն</span><span class="detail-field-val">${c.name} ${c.surname}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Անձնագիր / ID</span><span class="detail-field-val">${c.passport_id||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Ծննդյան ամսաթիվ</span><span class="detail-field-val">${c.birthdate ? new Date(c.birthdate).toLocaleDateString('hy-AM') : '—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Հեռախոս</span><span class="detail-field-val">${c.phone||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Էլ. փոստ</span><span class="detail-field-val">${c.email||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Ավելացվել է</span><span class="detail-field-val">${new Date(c.created_at).toLocaleDateString('hy-AM')}</span></div>
         </div>
         ${c.notes ? `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
-          <div class="detail-field-key" style="margin-bottom:6px">Nshumner</div>
+          <div class="detail-field-key" style="margin-bottom:6px">Նշումներ</div>
           <div style="font-size:13px;color:var(--text2)">${c.notes}</div></div>` : ''}
       </div>
     </div>
@@ -862,14 +856,14 @@ async function openCoachDetail(id) {
 function editCurrentCoach() {
   if (!currentCoachId) return;
   const c = allCoaches.find(x => x.id === currentCoachId);
-  if (c) { fillCoachForm(c); showPage('add-coach'); document.getElementById('coach-form-title').textContent = 'Khmbagrel Мarзich'; }
+  if (c) { fillCoachForm(c); showPage('add-coach'); document.getElementById('coach-form-title').textContent = 'Խմբագրել մարզիչ'; }
 }
 
 async function deleteCurrentCoach() {
   if (!currentCoachId) return;
   const c    = allCoaches.find(x => x.id === currentCoachId);
-  const name = c ? `${c.name} ${c.surname}` : 'ays marzich';
-  if (!confirm(`Джnjel ${name}?`)) return;
+  const name = c ? `${c.name} ${c.surname}` : 'այս մարզիչ';
+  if (!confirm(`Ջնջել ${name}?`)) return;
   await sb.from('coaches').delete().eq('id', currentCoachId);
   showPage('coaches');
 }
@@ -879,7 +873,7 @@ async function deleteCurrentCoach() {
 // ============================================================
 function resetCoachForm() {
   document.getElementById('coach-id').value = '';
-  document.getElementById('coach-form-title').textContent = 'Avely Мarзich';
+  document.getElementById('coach-form-title').textContent = 'Ավելացնել Մարզիչ';
   ['fc-name','fc-surname','fc-father-name','fc-birthdate','fc-passport',
    'fc-phone','fc-email','fc-qualification','fc-education','fc-notes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
@@ -939,10 +933,10 @@ async function saveCoach() {
 
   const name    = document.getElementById('fc-name').value.trim();
   const surname = document.getElementById('fc-surname').value.trim();
-  if (!name || !surname) { err.textContent = 'Anunhe ev azganunh partadir en.'; return; }
+  if (!name || !surname) { err.textContent = 'Անունը և ազգանունը պարտադիր են.'; return; }
 
   const originalLabel = btn.innerHTML;
-  btn.innerHTML = '⏳ Pahvum e...'; btn.disabled = true;
+  btn.innerHTML = '⏳ Պահվում է...'; btn.disabled = true;
 
   const payload = {
     name, surname,
@@ -973,10 +967,10 @@ async function saveCoach() {
       dbError = error;
       if (data) coachId = data.id;
     }
-  } catch (e) { dbError = { message: e.message || 'Anspaselи skhal' }; }
+  } catch (e) { dbError = { message: e.message || 'Անսպասելի սխալ' }; }
 
   if (dbError) {
-    err.textContent = `Skhal: ${dbError.message}`;
+    err.textContent = `Սխալ: ${dbError.message}`;
     btn.innerHTML = originalLabel; btn.disabled = false;
     return;
   }
@@ -987,7 +981,7 @@ async function saveCoach() {
   }
 
   btn.innerHTML = originalLabel; btn.disabled = false;
-  suc.textContent = editId ? 'Мarzichy tharrmacvats e ✓' : 'Мarzichy pahvats e ✓';
+  suc.textContent = editId ? 'Մարզիչը թարմացված է ✓' : 'Մարզիչը պահված է ✓';
   setTimeout(() => showPage('coaches'), 1200);
 }
 
@@ -1008,7 +1002,7 @@ async function uploadCoachFile(inputId, coachId, bucket, column) {
 // ============================================================
 async function loadWorkers(filter = '') {
   const grid = document.getElementById('workers-grid');
-  grid.innerHTML = '<div class="loading"><div class="spinner"></div> Berrnum e...</div>';
+  grid.innerHTML = '<div class="loading"><div class="spinner"></div> Բեռնում է...</div>';
 
   const { data } = await sb.from('workers').select('*').order('surname');
   allWorkers = data || [];
@@ -1024,7 +1018,7 @@ async function loadWorkers(filter = '') {
   }
 
   if (!filtered.length) {
-    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">◈</div><p>${filter ? 'Ashkhatakich chi gtnyel' : 'Ashkhatakich chka, avely arajine'}</p></div>`;
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">◈</div><p>${filter ? 'Աշխատակից չի գտնվել' : 'Աշխատակից չկա, ավելացնել'}</p></div>`;
     return;
   }
 
@@ -1056,10 +1050,10 @@ async function openWorkerDetail(id) {
   showPage('worker-detail');
 
   const content = document.getElementById('worker-detail-content');
-  content.innerHTML = '<div class="loading"><div class="spinner"></div> Berrnum e...</div>';
+  content.innerHTML = '<div class="loading"><div class="spinner"></div> Բեռնում է...</div>';
 
   const { data: w } = await sb.from('workers').select('*').eq('id', id).single();
-  if (!w) { content.innerHTML = '<p style="color:var(--text3)">Ashkhatakich chi gtnyel.</p>'; return; }
+  if (!w) { content.innerHTML = '<p style="color:var(--text3)">Աշխատակից չի գտնվել.</p>'; return; }
 
   const initials = `${w.name?.[0]||''}${w.surname?.[0]||''}`.toUpperCase();
   const age      = w.birthdate ? Math.floor((Date.now() - new Date(w.birthdate)) / 31557600000) : null;
@@ -1071,7 +1065,7 @@ async function openWorkerDetail(id) {
   const docBtns = [
     ...((w.extra_docs||[]).map((url,i) => {
       const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
-      const label = isImg ? `🖼 Նkaragir ${i+1}` : `▤ Pastataght ${i+1}`;
+      const label = isImg ? `🖼 Նկար ${i+1}` : `▤ Փաստաթուղթ ${i+1}`;
       return `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${url}')">${label}</button>`;
     })),
   ].join('');
@@ -1083,26 +1077,24 @@ async function openWorkerDetail(id) {
       <div class="detail-full-name">${w.name} ${w.surname}</div>
       <div class="detail-sport-badge">${w.title||'Pashhton chka'}</div>
       <div class="detail-meta-list">
-        ${age ? `<div class="detail-meta-item"><span class="detail-meta-key">Tariq</span><span class="detail-meta-val">${age}</span></div>` : ''}
-        ${w.phone  ? `<div class="detail-meta-item"><span class="detail-meta-key">Herakhos</span><span class="detail-meta-val">${w.phone}</span></div>` : ''}
-        ${w.salary ? `<div class="detail-meta-item"><span class="detail-meta-key">Ashkhatavarj</span><span class="detail-meta-val">${w.salary} ֏</span></div>` : ''}
+        ${age ? `<div class="detail-meta-item"><span class="detail-meta-key">Տարիք</span><span class="detail-meta-val">${age}</span></div>` : ''}
+        ${w.phone  ? `<div class="detail-meta-item"><span class="detail-meta-key">Հեռախոս</span><span class="detail-meta-val">${w.phone}</span></div>` : ''}
       </div>
       ${docBtns}
     </div>
     <div class="detail-main">
       <div class="detail-card">
-        <div class="detail-card-title">Andznakan Tvyalner</div>
+        <div class="detail-card-title">Անձնական Տվյալներ</div>
         <div class="detail-fields-grid">
-          <div class="detail-field"><span class="detail-field-key">Anunh Azganunh</span><span class="detail-field-val">${w.name} ${w.surname}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Andznagir / ID</span><span class="detail-field-val">${w.passport_id||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Tsnnndyan Amsatyw</span><span class="detail-field-val">${w.birthdate ? new Date(w.birthdate).toLocaleDateString('hy-AM') : '—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Herakhos</span><span class="detail-field-val">${w.phone||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">El. Prost</span><span class="detail-field-val">${w.email||'—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Ashkhatavarj</span><span class="detail-field-val">${w.salary ? w.salary + ' ֏' : '—'}</span></div>
-          <div class="detail-field"><span class="detail-field-key">Avely</span><span class="detail-field-val">${new Date(w.created_at).toLocaleDateString('hy-AM')}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Անուն Ազգանուն</span><span class="detail-field-val">${w.name} ${w.surname}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Անձնագիր / ID</span><span class="detail-field-val">${w.passport_id||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Ծննդյան ամսաթիվ</span><span class="detail-field-val">${w.birthdate ? new Date(w.birthdate).toLocaleDateString('hy-AM') : '—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Հեռախոս</span><span class="detail-field-val">${w.phone||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Էլ. փոստ</span><span class="detail-field-val">${w.email||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Ավելացվել է</span><span class="detail-field-val">${new Date(w.created_at).toLocaleDateString('hy-AM')}</span></div>
         </div>
         ${w.notes ? `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
-          <div class="detail-field-key" style="margin-bottom:6px">Nshumner</div>
+          <div class="detail-field-key" style="margin-bottom:6px">Նշումներ</div>
           <div style="font-size:13px;color:var(--text2)">${w.notes}</div></div>` : ''}
       </div>
     </div>
@@ -1112,7 +1104,7 @@ async function openWorkerDetail(id) {
 function editCurrentWorker() {
   if (!currentWorkerId) return;
   const w = allWorkers.find(x => x.id === currentWorkerId);
-  if (w) { fillWorkerForm(w); showPage('add-worker'); document.getElementById('worker-form-title').textContent = 'Khmbagrel Ashkhat'; }
+  if (w) { fillWorkerForm(w); showPage('add-worker'); document.getElementById('worker-form-title').textContent = 'Խմբագրել աշխատակցին'; }
   else   { loadWorkerForEdit(currentWorkerId); }
 }
 
@@ -1121,7 +1113,7 @@ async function loadWorkerForEdit(id) {
   if (!w) return;
   fillWorkerForm(w);
   showPage('add-worker');
-  document.getElementById('worker-form-title').textContent = 'Khmbagrel Ashkhat';
+  document.getElementById('worker-form-title').textContent = 'Խմբագրել աշխատակցին';
 }
 
 function fillWorkerForm(w) {
@@ -1149,8 +1141,8 @@ function fillWorkerForm(w) {
 async function deleteCurrentWorker() {
   if (!currentWorkerId) return;
   const w    = allWorkers.find(x => x.id === currentWorkerId);
-  const name = w ? `${w.name} ${w.surname}` : 'ays ashkhatakich';
-  if (!confirm(`Джnjel ${name}?`)) return;
+  const name = w ? `${w.name} ${w.surname}` : 'այս աշխատակցին';
+  if (!confirm(`Ջնջել ${name}?`)) return;
   await sb.from('workers').delete().eq('id', currentWorkerId);
   showPage('workers');
 }
@@ -1160,7 +1152,7 @@ async function deleteCurrentWorker() {
 // ============================================================
 function resetWorkerForm() {
   document.getElementById('worker-id').value = '';
-  document.getElementById('worker-form-title').textContent = 'Avely Ashkhatakich';
+  document.getElementById('worker-form-title').textContent = 'Ավելացնել աշխատակից';
   ['fw-name','fw-surname','fw-father-name','fw-birthdate','fw-passport',
    'fw-phone','fw-email','fw-title','fw-notes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
@@ -1195,8 +1187,8 @@ async function saveWorker() {
   const surname = document.getElementById('fw-surname').value.trim();
   const title   = document.getElementById('fw-title').value.trim();
 
-  if (!name || !surname) { err.textContent = 'Anunhe ev azganunh partadir en.'; return; }
-  if (!title)            { err.textContent = 'Паshhhтone partadir e.'; return; }
+  if (!name || !surname) { err.textContent = 'Անունը և ազգանունը պարտադիր են.'; return; }
+  if (!title)            { err.textContent = 'Պաշտոնը պարտադիր է.'; return; }
 
   const originalLabel = btn.innerHTML;
   btn.innerHTML = '⏳ Pahvum e...'; btn.disabled = true;
@@ -1224,10 +1216,10 @@ async function saveWorker() {
       dbError = error;
       if (data) workerId = data.id;
     }
-  } catch (e) { dbError = { message: e.message || 'Anspaselи skhal' }; }
+  } catch (e) { dbError = { message: e.message || 'Անսպասելի սխալ' }; }
 
   if (dbError) {
-    err.textContent = `Skhal: ${dbError.message}`;
+    err.textContent = `Սխալ: ${dbError.message}`;
     btn.innerHTML = originalLabel; btn.disabled = false;
     return;
   }
@@ -1238,7 +1230,7 @@ async function saveWorker() {
   }
 
   btn.innerHTML = originalLabel; btn.disabled = false;
-  suc.textContent = editId ? 'Ashkhataky tharrmacvats e ✓' : 'Ashkhataky pahvats e ✓';
+  suc.textContent = editId ? 'Աշխատակիցը թարմացվել է ✓' : 'Աշխատակիցը պահված է ✓';
   setTimeout(() => showPage('workers'), 1200);
 }
 
@@ -1263,13 +1255,13 @@ function renderExtraDocsEdit(urls) {
   extraDocsExisting = urls || [];
   const container = document.getElementById('extra-docs-list');
   if (!container) return;
-  if (!extraDocsExisting.length) { container.innerHTML = '<div style="color:var(--text3);font-size:.8rem">Pastataght chka</div>'; return; }
+  if (!extraDocsExisting.length) { container.innerHTML = '<div style="color:var(--text3);font-size:.8rem">Փաստաթուղթ չկա</div>'; return; }
   container.innerHTML = extraDocsExisting.map((url, i) => {
     const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
-    const name  = `Pastataght ${i+1}`;
+    const name  = `Փաստաթուղթ ${i+1}`;
     return `<div class="extra-doc-chip">
       ${isImg ? `<img src="${url}" onclick="viewImage('${url}')" title="${name}">` : `<span class="extra-doc-icon" onclick="viewImage('${url}')">▤ ${name}</span>`}
-      <button class="extra-doc-del" onclick="removeExtraDoc(${i})" title="Heracnel">✕</button>
+      <button class="extra-doc-del" onclick="removeExtraDoc(${i})" title="Հեռացնել">✕</button>
     </div>`;
   }).join('');
 }
@@ -1413,7 +1405,7 @@ async function loadCompetitions(filter) {
   }
 
   if (!filtered.length) {
-    list.innerHTML = `<div style="color:var(--text3);padding:40px;text-align:center;font-size:14px">Мрцуйт chi grantsatsvel.</div>`;
+    list.innerHTML = `<div style="color:var(--text3);padding:40px;text-align:center;font-size:14px">Մրցույթ չի գրանցվել.</div>`;
     return;
   }
 
@@ -1429,13 +1421,13 @@ async function loadCompetitions(filter) {
           ${c.sport ? c.sport + ' · ' : ''}
           ${c.location ? c.location + ' · ' : ''}
           ${dateStr}
-          <span style="color:var(--gold);margin-left:8px">👥 ${participantCount} marzik</span>
+          <span style="color:var(--gold);margin-left:8px">👥 ${participantCount} մարզիկ</span>
         </div>
         ${c.notes ? `<div style="font-size:.78rem;color:var(--text3);margin-top:4px">${c.notes}</div>` : ''}
       </div>
       <div class="comp-actions">
-        <button class="comp-action-btn" onclick="event.stopPropagation();openEditCompetitionModal('${c.id}')" title="Khmbagrel">✎</button>
-        <button class="comp-action-btn del" onclick="event.stopPropagation();deleteCompetition('${c.id}')" title="Джnjel">✕</button>
+        <button class="comp-action-btn" onclick="event.stopPropagation();openEditCompetitionModal('${c.id}')" title="Խմբագրել">✎</button>
+        <button class="comp-action-btn del" onclick="event.stopPropagation();deleteCompetition('${c.id}')" title="Ջնջել">✕</button>
       </div>
     </div>`;
   }).join('');
@@ -1451,21 +1443,21 @@ async function openCompDetail(id) {
   currentCompetitionId = id;
   showPage('comp-detail');
   const content = document.getElementById('comp-detail-content');
-  content.innerHTML = '<div class="loading"><div class="spinner"></div> Berrnum e...</div>';
+  content.innerHTML = '<div class="loading"><div class="spinner"></div> Բեռնում է...</div>';
 
   const [{ data: comp }, { data: parts }] = await Promise.all([
     sb.from('competitions').select('*').eq('id', id).single(),
     sb.from('competition_participants').select('*, athletes(name, surname, photo_url)').eq('competition_id', id).order('weight_class')
   ]);
 
-  if (!comp) { content.innerHTML = '<p style="color:var(--text3)">Мрцуйт chi gtnyel.</p>'; return; }
+  if (!comp) { content.innerHTML = '<p style="color:var(--text3)">Մրցույթ չի գտնվել.</p>'; return; }
 
   const dateStr = comp.date ? new Date(comp.date).toLocaleDateString('hy-AM') : '—';
 
   // Group participants by weight class
   const byWeight = {};
   (parts || []).forEach(p => {
-    const key = p.weight_class || 'Qash chi nshvats';
+    const key = p.weight_class || 'Քաշը նշված չէ';
     if (!byWeight[key]) byWeight[key] = [];
     byWeight[key].push(p);
   });
@@ -1486,34 +1478,34 @@ async function openCompDetail(id) {
         <td style="color:var(--gold);font-weight:700">${medal} ${p.result||'—'}</td>
         <td style="color:var(--text3);font-size:.82rem">${p.notes||''}</td>
         <td>
-          <button class="comp-action-btn" onclick="openEditParticipantModal('${p.id}')" title="Khmbagrel">✎</button>
-          <button class="comp-action-btn del" onclick="deleteParticipant('${p.id}')" title="Heracnel">✕</button>
+          <button class="comp-action-btn" onclick="openEditParticipantModal('${p.id}')" title="Խմբագրել">✎</button>
+          <button class="comp-action-btn del" onclick="deleteParticipant('${p.id}')" title="Հեռացնել">✕</button>
         </td>
       </tr>`;
     }).join('');
 
     return `
     <div class="detail-card" style="margin-bottom:16px">
-      <div class="detail-card-title" style="color:var(--gold)">⚖ ${weight} <span style="color:var(--text3);font-size:.8rem">(${participants.length} marzik)</span></div>
+      <div class="detail-card-title" style="color:var(--gold)">⚖ ${weight} <span style="color:var(--text3);font-size:.8rem">(${participants.length} մարզիկ)</span></div>
       <table class="comp-table" style="margin-top:8px">
-        <thead><tr><th>Мarзик</th><th>Ardyunq</th><th>Nshumner</th><th></th></tr></thead>
+        <thead><tr><th>Մարզիկ</th><th>Արդյունք</th><th>Նշումներ</th><th></th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>`;
   }).join('');
 
   const emptyMsg = parts && parts.length === 0
-    ? '<div class="empty-state"><div class="empty-icon">🥊</div><p>Мarziкner ch\'en avelvats. Сеghmek «+ Мarziк avely»</p></div>'
+    ? '<div class="empty-state"><div class="empty-icon">🥊</div><p>Մարզիկներ չեն ավելացվել. Սեղմեք +.»</p></div>'
     : '';
 
   content.innerHTML = `
   <div class="detail-card" style="margin-bottom:20px">
     <div class="detail-card-title" style="font-size:1.3rem;color:var(--text1)">${comp.name}</div>
     <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:12px">
-      ${comp.sport    ? `<div><span style="color:var(--text3);font-size:.8rem">Мarзадзев</span><div style="color:var(--text1);font-weight:600">${comp.sport}</div></div>` : ''}
-      ${comp.date     ? `<div><span style="color:var(--text3);font-size:.8rem">Amsatyw</span><div style="color:var(--text1);font-weight:600">${dateStr}</div></div>` : ''}
-      ${comp.location ? `<div><span style="color:var(--text3);font-size:.8rem">Vayr</span><div style="color:var(--text1);font-weight:600">${comp.location}</div></div>` : ''}
-      <div><span style="color:var(--text3);font-size:.8rem">Мarziкner</span><div style="color:var(--gold);font-weight:700;font-size:1.2rem">${parts ? parts.length : 0}</div></div>
+      ${comp.sport    ? `<div><span style="color:var(--text3);font-size:.8rem">Մարզաձև</span><div style="color:var(--text1);font-weight:600">${comp.sport}</div></div>` : ''}
+      ${comp.date     ? `<div><span style="color:var(--text3);font-size:.8rem">Ամսաթիվ</span><div style="color:var(--text1);font-weight:600">${dateStr}</div></div>` : ''}
+      ${comp.location ? `<div><span style="color:var(--text3);font-size:.8rem">Վայր</span><div style="color:var(--text1);font-weight:600">${comp.location}</div></div>` : ''}
+      <div><span style="color:var(--text3);font-size:.8rem">Մարզիկներ</span><div style="color:var(--gold);font-weight:700;font-size:1.2rem">${parts ? parts.length : 0}</div></div>
     </div>
     ${comp.notes ? `<div style="margin-top:12px;color:var(--text3);font-size:.88rem">${comp.notes}</div>` : ''}
   </div>
@@ -1521,7 +1513,7 @@ async function openCompDetail(id) {
 }
 
 function openNewCompetitionModal() {
-  document.getElementById('comp-modal-title').textContent = 'Nor Мрцуйт';
+  document.getElementById('comp-modal-title').textContent = 'Նոր մրցույթ';
   ['comp-id','comp-name','comp-date','comp-location','comp-notes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
@@ -1533,7 +1525,7 @@ function openNewCompetitionModal() {
 async function openEditCompetitionModal(id) {
   const { data: c } = await sb.from('competitions').select('*').eq('id', id).single();
   if (!c) return;
-  document.getElementById('comp-modal-title').textContent = 'Мрцуйт Khmbagrel';
+  document.getElementById('comp-modal-title').textContent = 'Մրցույթ խմբագրել';
   document.getElementById('comp-id').value       = c.id;
   document.getElementById('comp-name').value     = c.name || '';
   document.getElementById('comp-date').value     = c.date || '';
@@ -1552,7 +1544,7 @@ async function saveCompetition() {
   const err  = document.getElementById('comp-error');
   err.textContent = '';
   const name = document.getElementById('comp-name').value.trim();
-  if (!name) { err.textContent = 'Мrцуйтi anunh partadir e.'; return; }
+  if (!name) { err.textContent = 'Մրցույթի անունը պարտադիր է.'; return; }
 
   const payload = {
     name,
@@ -1590,7 +1582,7 @@ async function saveCompetition() {
 }
 
 async function deleteCompetition(id) {
-  if (!confirm('Джnjel mrtsuythe?')) return;
+  if (!confirm('Ջնջել մրցույթը?')) return;
   await sb.from('competition_participants').delete().eq('competition_id', id);
   await sb.from('competitions').delete().eq('id', id);
   showPage('competitions');
@@ -1604,7 +1596,7 @@ async function deleteCurrentCompetition() {
 // ── PARTICIPANT MODAL ────────────────────────────────────────────────────────
 async function openAddParticipantModal() {
   if (!currentCompetitionId) return;
-  document.getElementById('participant-modal-title').textContent = 'Мarziк Avely Мrцуйтin';
+  document.getElementById('participant-modal-title').textContent = 'Մարզիկ ավելացնել մրցույթին';
   document.getElementById('participant-id').value  = '';
   document.getElementById('part-weight').value     = '';
   document.getElementById('part-result').value     = '';
@@ -1613,7 +1605,7 @@ async function openAddParticipantModal() {
 
   const athletes = await getAthleteOptions();
   const sel = document.getElementById('part-athlete');
-  sel.innerHTML = '<option value="">Yntrel marzik...</option>';
+  sel.innerHTML = '<option value="">Ընտրել մարզիկ...</option>';
   athletes.forEach(a => {
     const o = document.createElement('option');
     o.value = a.id;
@@ -1627,7 +1619,7 @@ async function openEditParticipantModal(partId) {
   const { data: p } = await sb.from('competition_participants').select('*').eq('id', partId).single();
   if (!p) return;
   await openAddParticipantModal();
-  document.getElementById('participant-modal-title').textContent = 'Мarziк Khmbagrel';
+  document.getElementById('participant-modal-title').textContent = 'Խմբագրել մարզիկ';
   document.getElementById('participant-id').value  = p.id;
   document.getElementById('part-athlete').value    = p.athlete_id || '';
   document.getElementById('part-weight').value     = p.weight_class || '';
@@ -1640,8 +1632,8 @@ async function saveParticipant() {
   err.textContent = '';
   const athleteId   = document.getElementById('part-athlete').value;
   const weight      = document.getElementById('part-weight').value.trim();
-  if (!athleteId) { err.textContent = 'Yntrel marzik.'; return; }
-  if (!weight)    { err.textContent = 'Qashe partadir e.'; return; }
+  if (!athleteId) { err.textContent = 'Ընտրել մարզիկ'; return; }
+  if (!weight)    { err.textContent = 'Քաշը պարտադիր է.'; return; }
 
   const payload = {
     competition_id: currentCompetitionId,
@@ -1669,7 +1661,7 @@ async function saveParticipant() {
 }
 
 async function deleteParticipant(partId) {
-  if (!confirm('Heracne′l marzikе mrcuythits?')) return;
+  if (!confirm('Հեռացնել մարզիկին մրցույթից?')) return;
   await sb.from('competition_participants').delete().eq('id', partId);
   openCompDetail(currentCompetitionId);
 }
@@ -1687,17 +1679,17 @@ function renderCoachExtraDocsEdit(urls) {
   const container = document.getElementById('coach-extra-docs-list');
   if (!container) return;
   if (!coachExtraDocsExisting.length) {
-    container.innerHTML = '<div style="color:var(--text3);font-size:.8rem;padding:8px 0">Pastataght chka</div>';
+    container.innerHTML = '<div style="color:var(--text3);font-size:.8rem;padding:8px 0">Փաստաթուղթ չկա</div>';
     return;
   }
   container.innerHTML = coachExtraDocsExisting.map((url, i) => {
     const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url.split('?')[0]);
-    const name  = `Pastataght ${i+1}`;
+    const name  = `Փաստաթուղթ ${i+1}`;
     return `<div class="extra-doc-chip">
       ${isImg
         ? `<img src="${url}" onclick="viewImage('${url}')" title="${name}" style="cursor:zoom-in">`
         : `<span class="extra-doc-icon" onclick="viewImage('${url}')" style="cursor:pointer">📄 ${name}</span>`}
-      <button class="extra-doc-del" onclick="removeCoachExtraDoc(${i})" title="Heracnel">✕</button>
+      <button class="extra-doc-del" onclick="removeCoachExtraDoc(${i})" title="Հեռացնել">✕</button>
     </div>`;
   }).join('');
 }
@@ -1753,17 +1745,17 @@ function renderWorkerExtraDocsEdit(urls) {
   const container = document.getElementById('worker-extra-docs-list');
   if (!container) return;
   if (!workerExtraDocsExisting.length) {
-    container.innerHTML = '<div style="color:var(--text3);font-size:.8rem;padding:8px 0">Pastataght chka</div>';
+    container.innerHTML = '<div style="color:var(--text3);font-size:.8rem;padding:8px 0">Փաստաթուղթ չկա</div>';
     return;
   }
   container.innerHTML = workerExtraDocsExisting.map((url, i) => {
     const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url.split('?')[0]);
-    const name  = `Pastataght ${i+1}`;
+    const name  = `Փաստաթուղթ ${i+1}`;
     return `<div class="extra-doc-chip">
       ${isImg
         ? `<img src="${url}" onclick="viewImage('${url}')" title="${name}" style="cursor:zoom-in">`
         : `<span class="extra-doc-icon" onclick="viewImage('${url}')" style="cursor:pointer">📄 ${name}</span>`}
-      <button class="extra-doc-del" onclick="removeWorkerExtraDoc(${i})" title="Heracnel">✕</button>
+      <button class="extra-doc-del" onclick="removeWorkerExtraDoc(${i})" title="Հեռացնել">✕</button>
     </div>`;
   }).join('');
 }
