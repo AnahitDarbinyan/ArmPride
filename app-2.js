@@ -512,6 +512,7 @@ async function openAthleteDetail(id) {
           <div class="detail-field"><span class="detail-field-key">Էլ. փոստ</span><span class="detail-field-val">${a.email||'—'}</span></div>
           <div class="detail-field"><span class="detail-field-key">Մարզաձև</span><span class="detail-field-val">${a.sport||'—'}</span></div>
           <div class="detail-field"><span class="detail-field-key">Մարզադպրոց</span><span class="detail-field-val">${a.school||'—'}</span></div>
+          <div class="detail-field"><span class="detail-field-key">Ընդունման Ամսաթիվ</span><span class="detail-field-val">${a.got_accepted ? new Date(a.got_accepted).toLocaleDateString('hy-AM') : '—'}</span></div>
           <div class="detail-field"><span class="detail-field-key">Ավելացվել է</span><span class="detail-field-val">${new Date(a.created_at).toLocaleDateString('hy-AM')}</span></div>
         </div>
         ${a.notes ? `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
@@ -570,6 +571,8 @@ function fillAthleteForm(a) {
   if (schoolSel) schoolSel.value = a.school || '';
   const statusSel = document.getElementById('f-status');
   if (statusSel) statusSel.value = a.status || 'Ակտիվ';
+  const gotAcceptedEl = document.getElementById('f-gotaccepted');
+  if (gotAcceptedEl) gotAcceptedEl.value = a.got_accepted || '';
 
   // Parent 1
   setVal('f-parent1-name',     a.parent1_name);
@@ -620,6 +623,7 @@ function resetAthleteForm() {
   ['f-name','f-surname','f-father-name','f-birthdate','f-passport','f-athlete-number',
    'f-phone','f-email','f-weight','f-rank','f-coach','f-notes',
    'f-parent1-name','f-parent1-surname','f-parent1-passport','f-parent1-phone',
+   'f-gotaccepted',
    ].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
@@ -687,6 +691,7 @@ async function saveAthlete() {
     notes:        document.getElementById('f-notes').value.trim()       || null,
     school:       document.getElementById('f-school')?.value            || null,
     status:       document.getElementById('f-status')?.value            || 'Ակտիվ',
+    got_accepted: document.getElementById('f-gotaccepted')?.value       || null,
     // Parents
     parent1_name:    document.getElementById('f-parent1-name')?.value.trim()    || null,
     parent1_surname: document.getElementById('f-parent1-surname')?.value.trim() || null,
