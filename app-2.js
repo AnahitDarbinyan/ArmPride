@@ -155,17 +155,18 @@ function closeSportModalDirect() { document.getElementById('sport-modal').style.
 function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
+  const pageEl = document.getElementById('page-' + page);
+  if (pageEl) pageEl.classList.add('active');
   const navItem = document.querySelector(`[data-page="${page}"]`);
   if (navItem) navItem.classList.add('active');
 
-  if (page === 'dashboard')   loadDashboard();
-  if (page === 'athletes')    loadAthletes();
+  if (page === 'dashboard')    loadDashboard();
+  if (page === 'athletes')     loadAthletes();
   if (page === 'add-athlete' && !document.getElementById('athlete-id').value) resetAthleteForm();
-  if (page === 'coaches')     loadCoaches();
+  if (page === 'coaches')      loadCoaches();
   if (page === 'add-coach' && !document.getElementById('coach-id').value) resetCoachForm();
   if (page === 'competitions') loadCompetitions();
-  if (page === 'workers')     loadWorkers();
+  if (page === 'workers')      loadWorkers();
   if (page === 'add-worker' && !document.getElementById('worker-id').value) resetWorkerForm();
 }
 
@@ -816,23 +817,12 @@ async function openCoachDetail(id) {
     : `<div class="detail-photo">${initials}</div>`;
 
   const docBtns = [
-    c.passport_url ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${c.passport_url}')">▤ Andznagir</button>` : '',
-    c.doc1_url     ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${c.doc1_url}')">▤ Pastataght 1</button>` : '',
-    c.doc2_url     ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${c.doc2_url}')">▤ Pastataght 2</button>` : '',
-    c.doc3_url     ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${c.doc3_url}')">▤ Ayl Pastataght</button>` : '',
+    ...((c.extra_docs||[]).map((url,i) => {
+      const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+      const label = isImg ? `🖼 Նkaragir ${i+1}` : `▤ Pastataght ${i+1}`;
+      return `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${url}')">${label}</button>`;
+    })),
   ].join('');
-
-  const extraDocs = c.extra_docs || [];
-  const extraDocsHtml = extraDocs.length ? `
-    <div style="margin-top:10px;font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Փաստաթղթեր (${extraDocs.length})</div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px">
-      ${extraDocs.map((url, i) => {
-        const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
-        return isImg
-          ? `<img src="${url}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1.5px solid var(--border2);cursor:zoom-in" onclick="viewImage('${url}')">`
-          : `<button class="btn-secondary" style="font-size:11px;padding:6px 10px" onclick="viewImage('${url}')">▤ Doc ${i+1}</button>`;
-      }).join('')}
-    </div>` : '';
 
   content.innerHTML = `
   <div class="detail-layout">
@@ -849,7 +839,6 @@ async function openCoachDetail(id) {
         ${c.email         ? `<div class="detail-meta-item"><span class="detail-meta-key">El. Prost</span><span class="detail-meta-val">${c.email}</span></div>` : ''}
       </div>
       ${docBtns}
-      ${extraDocsHtml}
     </div>
     <div class="detail-main">
       <div class="detail-card">
@@ -870,14 +859,10 @@ async function openCoachDetail(id) {
   </div>`;
 }
 
-async function editCurrentCoach() {
+function editCurrentCoach() {
   if (!currentCoachId) return;
-  let c = allCoaches.find(x => x.id === currentCoachId);
-  if (!c) { const { data } = await sb.from('coaches').select('*').eq('id', currentCoachId).single(); c = data; }
-  if (!c) return;
-  showPage('add-coach');
-  document.getElementById('coach-form-title').textContent = 'Khmbagrel Мarзich';
-  fillCoachForm(c);
+  const c = allCoaches.find(x => x.id === currentCoachId);
+  if (c) { fillCoachForm(c); showPage('add-coach'); document.getElementById('coach-form-title').textContent = 'Khmbagrel Мarзich'; }
 }
 
 async function deleteCurrentCoach() {
@@ -912,6 +897,7 @@ function resetCoachForm() {
   });
   const errEl = document.getElementById('coach-form-error');   if (errEl) errEl.textContent = '';
   const sucEl = document.getElementById('coach-form-success'); if (sucEl) sucEl.textContent = '';
+  renderCoachExtraDocsEdit([]);
 }
 
 function cancelCoachForm() {
@@ -939,19 +925,10 @@ function fillCoachForm(c) {
 
   if (c.photo_url) {
     const img = document.getElementById('coach-photo-preview');
-    if (img) { img.src = c.photo_url; img.style.display = 'block'; }
-    const ph = document.getElementById('coach-photo-placeholder');
-    if (ph) ph.style.display = 'none';
+    img.src = c.photo_url; img.style.display = 'block';
+    document.getElementById('coach-photo-placeholder').style.display = 'none';
   }
-  // c.passport_url / doc1_url / doc2_url / doc3_url shown in gallery below
-  // populate extra docs gallery
-  const existingCoachDocs = [];
-  if (c.passport_url) existingCoachDocs.push(c.passport_url);
-  if (c.doc1_url)     existingCoachDocs.push(c.doc1_url);
-  if (c.doc2_url)     existingCoachDocs.push(c.doc2_url);
-  if (c.doc3_url)     existingCoachDocs.push(c.doc3_url);
-  if (Array.isArray(c.extra_docs)) existingCoachDocs.push(...c.extra_docs);
-  renderCoachExtraDocsEdit(existingCoachDocs);
+  renderCoachExtraDocsEdit(c.extra_docs || []);
 }
 
 async function saveCoach() {
@@ -1092,22 +1069,12 @@ async function openWorkerDetail(id) {
     : `<div class="detail-photo">${initials}</div>`;
 
   const docBtns = [
-    w.passport_url ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${w.passport_url}')">▤ Andznagir</button>` : '',
-    w.doc1_url     ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${w.doc1_url}')">▤ Pastataght 1</button>` : '',
-    w.doc2_url     ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${w.doc2_url}')">▤ Pastataght 2</button>` : '',
+    ...((w.extra_docs||[]).map((url,i) => {
+      const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+      const label = isImg ? `🖼 Նkaragir ${i+1}` : `▤ Pastataght ${i+1}`;
+      return `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${url}')">${label}</button>`;
+    })),
   ].join('');
-
-  const extraDocs = w.extra_docs || [];
-  const extraDocsHtml = extraDocs.length ? `
-    <div style="margin-top:10px;font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Փաստաթղթեր (${extraDocs.length})</div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px">
-      ${extraDocs.map((url, i) => {
-        const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
-        return isImg
-          ? `<img src="${url}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1.5px solid var(--border2);cursor:zoom-in" onclick="viewImage('${url}')">`
-          : `<button class="btn-secondary" style="font-size:11px;padding:6px 10px" onclick="viewImage('${url}')">▤ Doc ${i+1}</button>`;
-      }).join('')}
-    </div>` : '';
 
   content.innerHTML = `
   <div class="detail-layout">
@@ -1121,7 +1088,6 @@ async function openWorkerDetail(id) {
         ${w.salary ? `<div class="detail-meta-item"><span class="detail-meta-key">Ashkhatavarj</span><span class="detail-meta-val">${w.salary} ֏</span></div>` : ''}
       </div>
       ${docBtns}
-      ${extraDocsHtml}
     </div>
     <div class="detail-main">
       <div class="detail-card">
@@ -1143,14 +1109,11 @@ async function openWorkerDetail(id) {
   </div>`;
 }
 
-async function editCurrentWorker() {
+function editCurrentWorker() {
   if (!currentWorkerId) return;
-  let w = allWorkers.find(x => x.id === currentWorkerId);
-  if (!w) { const { data } = await sb.from('workers').select('*').eq('id', currentWorkerId).single(); w = data; }
-  if (!w) return;
-  showPage('add-worker');
-  document.getElementById('worker-form-title').textContent = 'Khmbagrel Ashkhat';
-  fillWorkerForm(w);
+  const w = allWorkers.find(x => x.id === currentWorkerId);
+  if (w) { fillWorkerForm(w); showPage('add-worker'); document.getElementById('worker-form-title').textContent = 'Khmbagrel Ashkhat'; }
+  else   { loadWorkerForEdit(currentWorkerId); }
 }
 
 async function loadWorkerForEdit(id) {
@@ -1173,23 +1136,14 @@ function fillWorkerForm(w) {
   document.getElementById('fw-phone').value        = w.phone       || '';
   document.getElementById('fw-email').value        = w.email       || '';
   document.getElementById('fw-title').value        = w.title       || '';
-  document.getElementById('fw-salary').value       = w.salary      || '';
   document.getElementById('fw-notes').value        = w.notes       || '';
 
   if (w.photo_url) {
     const img = document.getElementById('worker-photo-preview');
-    if (img) { img.src = w.photo_url; img.style.display = 'block'; }
-    const ph = document.getElementById('worker-photo-placeholder');
-    if (ph) ph.style.display = 'none';
+    img.src = w.photo_url; img.style.display = 'block';
+    document.getElementById('worker-photo-placeholder').style.display = 'none';
   }
-  // w.passport_url / doc1_url / doc2_url shown in gallery below
-  // populate extra docs gallery
-  const existingWorkerDocs = [];
-  if (w.passport_url) existingWorkerDocs.push(w.passport_url);
-  if (w.doc1_url)     existingWorkerDocs.push(w.doc1_url);
-  if (w.doc2_url)     existingWorkerDocs.push(w.doc2_url);
-  if (Array.isArray(w.extra_docs)) existingWorkerDocs.push(...w.extra_docs);
-  renderWorkerExtraDocsEdit(existingWorkerDocs);
+  renderWorkerExtraDocsEdit(w.extra_docs || []);
 }
 
 async function deleteCurrentWorker() {
@@ -1222,6 +1176,7 @@ function resetWorkerForm() {
   });
   const errEl = document.getElementById('worker-form-error');   if (errEl) errEl.textContent = '';
   const sucEl = document.getElementById('worker-form-success'); if (sucEl) sucEl.textContent = '';
+  renderWorkerExtraDocsEdit([]);
 }
 
 function cancelWorkerForm() {
@@ -1364,15 +1319,30 @@ function handleExtraDocsChange(input) {
   container.insertAdjacentHTML('beforeend', pendingHtml);
 }
 
+
 // ============================================================
-// IMAGE VIEWER
+// FILE / IMAGE VIEWER
 // ============================================================
 function viewImage(url) {
-  const viewer = document.getElementById('img-viewer');
-  const img    = document.getElementById('img-viewer-src');
-  if (!viewer || !img) return;
-  img.src = url;
-  viewer.style.display = 'flex';
+  if (!url) return;
+  const isImg = /\.(jpg|jpeg|png|webp|gif|bmp|svg)$/i.test(url.split('?')[0]);
+  if (isImg) {
+    // Show image in a lightbox overlay
+    let overlay = document.getElementById('img-viewer-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'img-viewer-overlay';
+      overlay.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out';
+      overlay.innerHTML = '<img id="img-viewer-img" style="max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 8px 40px #000"><button onclick="document.getElementById(\'img-viewer-overlay\').style.display=\'none\'" style="position:absolute;top:18px;right:24px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;line-height:1">✕</button>';
+      overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
+      document.body.appendChild(overlay);
+    }
+    document.getElementById('img-viewer-img').src = url;
+    overlay.style.display = 'flex';
+  } else {
+    // Open PDFs and other files in a new tab
+    window.open(url, '_blank');
+  }
 }
 
 // ============================================================
@@ -1717,14 +1687,17 @@ function renderCoachExtraDocsEdit(urls) {
   const container = document.getElementById('coach-extra-docs-list');
   if (!container) return;
   if (!coachExtraDocsExisting.length) {
-    container.innerHTML = '<div style="color:var(--text3);font-size:.8rem">Pastataght chka</div>';
+    container.innerHTML = '<div style="color:var(--text3);font-size:.8rem;padding:8px 0">Pastataght chka</div>';
     return;
   }
   container.innerHTML = coachExtraDocsExisting.map((url, i) => {
-    const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+    const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url.split('?')[0]);
+    const name  = `Pastataght ${i+1}`;
     return `<div class="extra-doc-chip">
-      ${isImg ? `<img src="${url}" onclick="viewImage('${url}')" title="Doc ${i+1}">` : `<span class="extra-doc-icon" onclick="viewImage('${url}')">▤ Doc ${i+1}</span>`}
-      <button class="extra-doc-del" onclick="removeCoachExtraDoc(${i})">✕</button>
+      ${isImg
+        ? `<img src="${url}" onclick="viewImage('${url}')" title="${name}" style="cursor:zoom-in">`
+        : `<span class="extra-doc-icon" onclick="viewImage('${url}')" style="cursor:pointer">📄 ${name}</span>`}
+      <button class="extra-doc-del" onclick="removeCoachExtraDoc(${i})" title="Heracnel">✕</button>
     </div>`;
   }).join('');
 }
@@ -1743,16 +1716,16 @@ async function uploadCoachExtraDocs(coachId) {
   for (const file of input.files) {
     const ext  = file.name.split('.').pop();
     const path = `${coachId}/extra/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await sb.storage.from('coach-docs').upload(path, file, { upsert: true });
-    if (error) { console.error('Coach doc upload error:', error); continue; }
-    const { data: { publicUrl } } = sb.storage.from('coach-docs').getPublicUrl(path);
-    newUrls.push(publicUrl);
+    try {
+      const { error } = await sb.storage.from('coach-docs').upload(path, file, { upsert: true });
+      if (error) { console.error('Coach doc upload error:', error); continue; }
+      const { data: { publicUrl } } = sb.storage.from('coach-docs').getPublicUrl(path);
+      newUrls.push(publicUrl);
+    } catch(e) { console.error('Coach doc upload exception:', e); }
   }
-  if (newUrls.length) {
-    const merged = [...coachExtraDocsExisting, ...newUrls];
-    await sb.from('coaches').update({ extra_docs: merged }).eq('id', coachId);
-    coachExtraDocsExisting = merged;
-  }
+  const merged = [...coachExtraDocsExisting, ...newUrls];
+  await sb.from('coaches').update({ extra_docs: merged }).eq('id', coachId);
+  coachExtraDocsExisting = merged;
   input.value = '';
 }
 
@@ -1761,9 +1734,10 @@ function handleCoachExtraDocsChange(input) {
   if (!container || !input.files || !input.files.length) return;
   const pendingHtml = Array.from(input.files).map(file => {
     if (file.type.startsWith('image/')) {
-      return `<div class="extra-doc-chip pending"><img src="${URL.createObjectURL(file)}" title="${file.name}"><span class="extra-doc-pending-badge">new</span></div>`;
+      const url = URL.createObjectURL(file);
+      return `<div class="extra-doc-chip pending"><img src="${url}" title="${file.name}"><span class="extra-doc-pending-badge">new</span></div>`;
     }
-    return `<div class="extra-doc-chip pending"><span class="extra-doc-icon">▤ ${file.name}</span><span class="extra-doc-pending-badge">new</span></div>`;
+    return `<div class="extra-doc-chip pending"><span class="extra-doc-icon">📄 ${file.name}</span><span class="extra-doc-pending-badge">new</span></div>`;
   }).join('');
   renderCoachExtraDocsEdit(coachExtraDocsExisting);
   container.insertAdjacentHTML('beforeend', pendingHtml);
@@ -1779,14 +1753,17 @@ function renderWorkerExtraDocsEdit(urls) {
   const container = document.getElementById('worker-extra-docs-list');
   if (!container) return;
   if (!workerExtraDocsExisting.length) {
-    container.innerHTML = '<div style="color:var(--text3);font-size:.8rem">Pastataght chka</div>';
+    container.innerHTML = '<div style="color:var(--text3);font-size:.8rem;padding:8px 0">Pastataght chka</div>';
     return;
   }
   container.innerHTML = workerExtraDocsExisting.map((url, i) => {
-    const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+    const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(url.split('?')[0]);
+    const name  = `Pastataght ${i+1}`;
     return `<div class="extra-doc-chip">
-      ${isImg ? `<img src="${url}" onclick="viewImage('${url}')" title="Doc ${i+1}">` : `<span class="extra-doc-icon" onclick="viewImage('${url}')">▤ Doc ${i+1}</span>`}
-      <button class="extra-doc-del" onclick="removeWorkerExtraDoc(${i})">✕</button>
+      ${isImg
+        ? `<img src="${url}" onclick="viewImage('${url}')" title="${name}" style="cursor:zoom-in">`
+        : `<span class="extra-doc-icon" onclick="viewImage('${url}')" style="cursor:pointer">📄 ${name}</span>`}
+      <button class="extra-doc-del" onclick="removeWorkerExtraDoc(${i})" title="Heracnel">✕</button>
     </div>`;
   }).join('');
 }
@@ -1805,16 +1782,16 @@ async function uploadWorkerExtraDocs(workerId) {
   for (const file of input.files) {
     const ext  = file.name.split('.').pop();
     const path = `${workerId}/extra/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await sb.storage.from('worker-docs').upload(path, file, { upsert: true });
-    if (error) { console.error('Worker doc upload error:', error); continue; }
-    const { data: { publicUrl } } = sb.storage.from('worker-docs').getPublicUrl(path);
-    newUrls.push(publicUrl);
+    try {
+      const { error } = await sb.storage.from('worker-docs').upload(path, file, { upsert: true });
+      if (error) { console.error('Worker doc upload error:', error); continue; }
+      const { data: { publicUrl } } = sb.storage.from('worker-docs').getPublicUrl(path);
+      newUrls.push(publicUrl);
+    } catch(e) { console.error('Worker doc upload exception:', e); }
   }
-  if (newUrls.length) {
-    const merged = [...workerExtraDocsExisting, ...newUrls];
-    await sb.from('workers').update({ extra_docs: merged }).eq('id', workerId);
-    workerExtraDocsExisting = merged;
-  }
+  const merged = [...workerExtraDocsExisting, ...newUrls];
+  await sb.from('workers').update({ extra_docs: merged }).eq('id', workerId);
+  workerExtraDocsExisting = merged;
   input.value = '';
 }
 
@@ -1823,29 +1800,11 @@ function handleWorkerExtraDocsChange(input) {
   if (!container || !input.files || !input.files.length) return;
   const pendingHtml = Array.from(input.files).map(file => {
     if (file.type.startsWith('image/')) {
-      return `<div class="extra-doc-chip pending"><img src="${URL.createObjectURL(file)}" title="${file.name}"><span class="extra-doc-pending-badge">new</span></div>`;
+      const url = URL.createObjectURL(file);
+      return `<div class="extra-doc-chip pending"><img src="${url}" title="${file.name}"><span class="extra-doc-pending-badge">new</span></div>`;
     }
-    return `<div class="extra-doc-chip pending"><span class="extra-doc-icon">▤ ${file.name}</span><span class="extra-doc-pending-badge">new</span></div>`;
+    return `<div class="extra-doc-chip pending"><span class="extra-doc-icon">📄 ${file.name}</span><span class="extra-doc-pending-badge">new</span></div>`;
   }).join('');
   renderWorkerExtraDocsEdit(workerExtraDocsExisting);
   container.insertAdjacentHTML('beforeend', pendingHtml);
 }
-
-// ── patch showPage to handle comp-detail ────────────────────────────────────
-window.showPage = function(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const pageEl = document.getElementById('page-' + page);
-  if (pageEl) pageEl.classList.add('active');
-  const navItem = document.querySelector(`[data-page="${page}"]`);
-  if (navItem) navItem.classList.add('active');
-
-  if (page === 'dashboard')   loadDashboard();
-  if (page === 'athletes')    loadAthletes();
-  if (page === 'add-athlete' && !document.getElementById('athlete-id').value) resetAthleteForm();
-  if (page === 'coaches')     loadCoaches();
-  if (page === 'add-coach' && !document.getElementById('coach-id').value) { resetCoachForm(); renderCoachExtraDocsEdit([]); }
-  if (page === 'competitions') loadCompetitions();
-  if (page === 'workers')     loadWorkers();
-  if (page === 'add-worker' && !document.getElementById('worker-id').value) { resetWorkerForm(); renderWorkerExtraDocsEdit([]); }
-};
