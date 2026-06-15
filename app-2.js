@@ -553,8 +553,6 @@ function fillAthleteForm(a) {
   document.getElementById('f-surname').value     = a.surname     || '';
   document.getElementById('f-father-name').value = a.father_name || '';
   document.getElementById('f-birthdate').value   = a.birthdate   || '';
-  const gotEl = document.getElementById('f-gotaccepted');
-  if (gotEl) gotEl.value = a.got_accepted || '';
   document.getElementById('f-gender').value      = a.gender      || '';
   document.getElementById('f-passport').value    = a.passport_id || '';
   const numEl = document.getElementById('f-athlete-number');
@@ -620,7 +618,7 @@ function resetAthleteForm() {
   document.getElementById('athlete-id').value = '';
   document.getElementById('form-title').textContent = 'Ավելացնել մարզիկ';
   ['f-name','f-surname','f-father-name','f-birthdate','f-passport','f-athlete-number',
-   'f-gotaccepted','f-phone','f-email','f-weight','f-rank','f-coach','f-notes',
+   'f-phone','f-email','f-weight','f-rank','f-coach','f-notes',
    'f-parent1-name','f-parent1-surname','f-parent1-passport','f-parent1-phone',
    ].forEach(id => {
     const el = document.getElementById(id);
@@ -677,7 +675,6 @@ async function saveAthlete() {
     name, surname,
     athlete_number: document.getElementById('f-athlete-number')?.value.trim() || null,
     birthdate:    document.getElementById('f-birthdate').value    || null,
-    got_accepted: document.getElementById('f-gotaccepted')?.value || null,
     gender:       document.getElementById('f-gender').value       || null,
     passport_id:  document.getElementById('f-passport').value.trim()    || null,
     nationality:  document.getElementById('f-nationality')?.value.trim() || null,
