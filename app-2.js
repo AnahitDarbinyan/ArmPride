@@ -94,8 +94,8 @@ function populateSportSelects() {
     const current = el.value;
     const isFilter = id.startsWith('filter') || id.includes('filter');
     el.innerHTML = isFilter
-      ? '<option value="">Бoлory мarзадзевер</option>'
-      : '<option value="">Yntrel мarзадзев</option>';
+      ? '<option value="">Բոլոր/Մարզաձևեր</option>'
+      : '<option value="">Ընտրել մարզաձև</option>';
     allSports.forEach(s => {
       const o = document.createElement('option');
       o.value = s; o.textContent = s;
