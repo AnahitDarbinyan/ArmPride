@@ -553,11 +553,14 @@ function fillAthleteForm(a) {
   document.getElementById('f-surname').value     = a.surname     || '';
   document.getElementById('f-father-name').value = a.father_name || '';
   document.getElementById('f-birthdate').value   = a.birthdate   || '';
+  const gotEl = document.getElementById('f-gotaccepted');
+  if (gotEl) gotEl.value = a.got_accepted || '';
   document.getElementById('f-gender').value      = a.gender      || '';
   document.getElementById('f-passport').value    = a.passport_id || '';
   const numEl = document.getElementById('f-athlete-number');
   if (numEl) numEl.value = a.athlete_number || '';
-  document.getElementById('f-nationality').value = a.nationality || '';
+  const natEl = document.getElementById('f-nationality');
+  if (natEl) natEl.value = a.nationality || '';
   document.getElementById('f-phone').value       = a.phone       || '';
   document.getElementById('f-email').value       = a.email       || '';
   document.getElementById('f-sport').value       = a.sport       || '';
@@ -616,8 +619,8 @@ async function deleteCurrentAthlete() {
 function resetAthleteForm() {
   document.getElementById('athlete-id').value = '';
   document.getElementById('form-title').textContent = 'Ավելացնել մարզիկ';
-  ['f-name','f-surname','f-father-name','f-birthdate','f-passport','f-athlete-number','f-nationality',
-   'f-phone','f-email','f-weight','f-rank','f-coach','f-notes',
+  ['f-name','f-surname','f-father-name','f-birthdate','f-passport','f-athlete-number',
+   'f-gotaccepted','f-phone','f-email','f-weight','f-rank','f-coach','f-notes',
    'f-parent1-name','f-parent1-surname','f-parent1-passport','f-parent1-phone',
    ].forEach(id => {
     const el = document.getElementById(id);
@@ -674,9 +677,10 @@ async function saveAthlete() {
     name, surname,
     athlete_number: document.getElementById('f-athlete-number')?.value.trim() || null,
     birthdate:    document.getElementById('f-birthdate').value    || null,
+    got_accepted: document.getElementById('f-gotaccepted')?.value || null,
     gender:       document.getElementById('f-gender').value       || null,
     passport_id:  document.getElementById('f-passport').value.trim()    || null,
-    nationality:  document.getElementById('f-nationality').value.trim() || null,
+    nationality:  document.getElementById('f-nationality')?.value.trim() || null,
     phone:        document.getElementById('f-phone').value.trim()       || null,
     email:        document.getElementById('f-email').value.trim()       || null,
     sport:        document.getElementById('f-sport').value        || null,
