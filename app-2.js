@@ -2,15 +2,15 @@ const SUPABASE_URL     = 'https://vzouzbybkbbaiupubfmj.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6b3V6Ynlia2JiYWl1cHViZm1qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjE3MjksImV4cCI6MjA5NTc5NzcyOX0.fVuREjAgEPNDasy-dxZlq603ilZNOIgxFuAU9q_fqgE';
 
 const SCHOOLS = [
-  'Համlet Պatуryani անvan Мarzadprroc',
-  'Армфайтинг Эджмиацин академия',
-  'Армфайтинг академия',
-  'Греплинг Эджмиацин',
-  'Армавири ужья',
-  'Армфайтинг Зварtнoc'
+  'Համլետ Պատուրյանի անվան մարզադպրոց',
+  'Արմֆայթինգ Էջմիածին ակադեմիա',
+  'Արմֆայթինգ ակադեմիա',
+  'Գրեփլինգ Էջմիածին',
+  'Արմավիրի ուժը',
+  'Արմֆայթինգ Զվարթնոց'
 ];
 
-const MONTHS_HY = ['', 'Հunvar', 'Петрvar', 'Маrт', 'Apрил', 'Mayис', 'Hunис', 'Hulис', 'Оgоstоs', 'Sептемber', 'Нокtemбер', 'Ноябрь', 'Декабрь'];
+const MONTHS_HY = ['', 'Հունվար', 'Փետրվար', 'Մարտ', 'Ապրիլ', 'Մայիս', 'Հունիս', 'Հուլիս', 'Օգոստոս', 'Սեպտեմբեր', 'Հոկտեմբեր', 'Նոյեմբեր', 'Դեկտեմբեր'];
 
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -28,8 +28,8 @@ let athleteSortDir   = 'asc';   // 'asc' | 'desc'
 let athleteSortField = 'passport_id'; // field name
 
 const DEFAULT_SPORTS = [
-  'Ըmbshamart','Brntskamart','Ձyudo','Sambo','Karate',
-  'Tajekvondo','Qiqboksing','MMA','Loghutun','Tetev Atletika'
+  'Ըմբշամարտ','Բռնցքամարտ','Ձյուդո','Սամբո','MMA/Grappling',
+  'Պար','Ծանրամարտ'
 ];
 
 // ============================================================
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 function populateSchoolSelect() {
   const sel = document.getElementById('f-school');
   if (!sel) return;
-  sel.innerHTML = '<option value="">Yntrel marzadprroc</option>';
+  sel.innerHTML = '<option value="">Ընտրել մարզադպրոց</option>';
   SCHOOLS.forEach(s => {
     const o = document.createElement('option');
     o.value = s; o.textContent = s;
@@ -109,7 +109,7 @@ function populateSportSelects() {
     const a = document.createElement('div');
     a.id = 'sports-mgr-link';
     a.className = 'nav-item';
-    a.innerHTML = '<span class="nav-icon">◧</span> Мarзадзевер';
+    a.innerHTML = '<span class="nav-icon">◧</span> Մարզաձևեր';
     a.onclick = () => document.getElementById('sport-modal').style.display = 'flex';
     nav.appendChild(a);
   }
@@ -131,7 +131,7 @@ async function addSport() {
   const name  = input.value.trim();
   const err   = document.getElementById('sport-modal-error');
   if (!name) return;
-  if (allSports.includes(name)) { err.textContent = 'Мarзадзевн ardenn gyoutyunh uni.'; return; }
+  if (allSports.includes(name)) { err.textContent = 'Մարզաձևն արդեն գոյություն ունի.'; return; }
   err.textContent = '';
   await sb.from('sports').insert({ name });
   allSports.push(name);
@@ -140,7 +140,7 @@ async function addSport() {
 }
 
 async function deleteSport(name) {
-  if (!confirm(`Heracnel "${name}"?`)) return;
+  if (!confirm(`Հեռացնել "${name}"?`)) return;
   await sb.from('sports').delete().eq('name', name);
   allSports = allSports.filter(s => s !== name);
   populateSportSelects();
@@ -209,7 +209,7 @@ function renderSportBreakdown(athletes) {
   const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
   const max = sorted[0]?.[1] || 1;
   const el = document.getElementById('sport-breakdown');
-  if (!sorted.length) { el.innerHTML = '<div style="color:var(--text3);font-size:13px">Marzikner chkan</div>'; return; }
+  if (!sorted.length) { el.innerHTML = '<div style="color:var(--text3);font-size:13px">Մարզիկներ չկան</div>'; return; }
   el.innerHTML = sorted.map(([sport, count]) => `
     <div class="sport-bar-item">
       <div class="sport-bar-label"><span>${sport}</span><span>${count}</span></div>
@@ -219,7 +219,7 @@ function renderSportBreakdown(athletes) {
 
 function renderRecentAthletes(athletes) {
   const el = document.getElementById('recent-athletes');
-  if (!athletes.length) { el.innerHTML = '<div style="color:var(--text3);font-size:13px">Marzikner chkan</div>'; return; }
+  if (!athletes.length) { el.innerHTML = '<div style="color:var(--text3);font-size:13px">Մարզիկներ չկան</div>'; return; }
   el.innerHTML = athletes.map(a => {
     const initials  = `${a.name?.[0]||''}${a.surname?.[0]||''}`.toUpperCase();
     const photoHtml = a.photo_url
@@ -241,7 +241,7 @@ function renderRecentAthletes(athletes) {
 // ============================================================
 async function loadAthletes() {
   const container = document.getElementById('athletes-table-container');
-  container.innerHTML = '<div class="loading"><div class="spinner"></div> Berrnum e...</div>';
+  container.innerHTML = '<div class="loading"><div class="spinner"></div> Բեռնում է...</div>';
 
   const { data, error } = await sb.from('athletes').select('*').order('created_at', { ascending: true });
   if (error) console.error('loadAthletes error:', error);
@@ -259,7 +259,7 @@ function populateCoachFilter() {
   if (!sel) return;
   const coaches = [...new Set(allAthletes.map(a => a.coach).filter(Boolean))].sort();
   const cur = sel.value;
-  sel.innerHTML = '<option value="">Bolory marzich</option>';
+  sel.innerHTML = '<option value="">Բոլոր մարզիչներ</option>';
   coaches.forEach(c => {
     const o = document.createElement('option');
     o.value = c; o.textContent = c;
@@ -277,7 +277,7 @@ function populateBirthYearFilter() {
       .filter(Boolean)
   )].sort((a, b) => b - a);
   const cur = sel.value;
-  sel.innerHTML = '<option value="">Bolory tari</option>';
+  sel.innerHTML = '<option value="">Բոլոր տարիներ</option>';
   years.forEach(y => {
     const o = document.createElement('option');
     o.value = y; o.textContent = y;
@@ -351,7 +351,7 @@ function applyAthleteFilters() {
 function renderAthletesTable(athletes) {
   const container = document.getElementById('athletes-table-container');
   if (!athletes.length) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">◈</div><p>Marzik chi gtnyel</p></div>`;
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">◈</div><p>Մարզիկ չի գտնվել</p></div>`;
     return;
   }
 
@@ -381,20 +381,20 @@ function renderAthletesTable(athletes) {
   }).join('');
 
   container.innerHTML = `
-    <div class="table-count">${athletes.length} marzzik</div>
+    <div class="table-count">${athletes.length} մարզիկ</div>
     <div class="athletes-table-wrap">
       <table class="athletes-table">
         <thead>
           <tr>
             <th style="width:44px;text-align:center">#</th>
-            <th>Мarзakan Andznagri Нomer</th>
-            <th>Azganunh</th>
-            <th>Anunh</th>
-            <th>Мarзadзev</th>
-            <th>Ser</th>
-            <th>Tsnnndyan</th>
-            <th>Мarзich</th>
-            <th>Kargavijak</th>
+            <th>Մարզական անձնագրի համար</th>
+            <th>Ազգանուն</th>
+            <th>Անուն</th>
+            <th>Մարզաձև</th>
+            <th>Սեռ</th>
+            <th>Ծննդյան ամսաթիվ</th>
+            <th>Մարզիչ</th>
+            <th>Կարգավիճակ</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
@@ -412,7 +412,7 @@ async function openAthleteDetail(id) {
   showPage('athlete-detail');
 
   const content = document.getElementById('athlete-detail-content');
-  content.innerHTML = '<div class="loading"><div class="spinner"></div> Berrnum e...</div>';
+  content.innerHTML = '<div class="loading"><div class="spinner"></div> Բեռնում է...</div>';
 
   const [{ data: a }, { data: partRows }] = await Promise.all([
     sb.from('athletes').select('*').eq('id', id).single(),
@@ -422,7 +422,7 @@ async function openAthleteDetail(id) {
       .order('created_at', { ascending: false })
   ]);
 
-  if (!a) { content.innerHTML = '<p style="color:var(--text3)">Marzike chi gtnyel.</p>'; return; }
+  if (!a) { content.innerHTML = '<p style="color:var(--text3)">Մարզիկը չի գտնվել.</p>'; return; }
 
   const comps = (partRows || []).filter(p => p.competitions);
 
