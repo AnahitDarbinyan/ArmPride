@@ -162,7 +162,7 @@ function showPage(page) {
 
   if (page === 'dashboard')    loadDashboard();
   if (page === 'athletes')     loadAthletes();
-  if (page === 'add-athlete' && !document.getElementById('athlete-id').value) resetAthleteForm();
+  if (page === 'add-athlete') resetAthleteForm();
   if (page === 'coaches')      loadCoaches();
   if (page === 'add-coach' && !document.getElementById('coach-id').value) resetCoachForm();
   if (page === 'competitions') loadCompetitions();
@@ -532,15 +532,15 @@ async function openAthleteDetail(id) {
 function editCurrentAthlete() {
   if (!currentAthleteId) return;
   const a = allAthletes.find(x => x.id === currentAthleteId);
-  if (a) { fillAthleteForm(a); showPage('add-athlete'); document.getElementById('form-title').textContent = 'Խմբագրել մարզիկ'; }
+  if (a) { showPage('add-athlete'); fillAthleteForm(a); document.getElementById('form-title').textContent = 'Խմբագրել մարզիկ'; }
   else   { loadAthleteForEdit(currentAthleteId); }
 }
 
 async function loadAthleteForEdit(id) {
   const { data: a } = await sb.from('athletes').select('*').eq('id', id).single();
   if (!a) return;
-  fillAthleteForm(a);
   showPage('add-athlete');
+  fillAthleteForm(a);
   document.getElementById('form-title').textContent = 'Խմբագրել մարզիկ';
 }
 
