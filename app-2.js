@@ -338,7 +338,7 @@ function applyAthleteFilters() {
       return athleteSortDir === 'asc'
       ? new Date(a.created_at) - new Date(b.created_at)
       : new Date(b.created_at) - new Date(a.created_at);
-  }};
+  };
     if (!va) return 1;
     if (!vb) return -1;
     // try numeric sort first
