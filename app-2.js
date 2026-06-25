@@ -175,7 +175,7 @@ function showPage(page) {
 // ============================================================
 async function loadDashboard() {
   const [{ data: athletes }, { data: comps }, { data: coaches }, { data: workers }] = await Promise.all([
-    sb.from('athletes').select('*'),
+    sb.from('athletes').select('*').limit(10000),
     sb.from('competitions').select('*'),
     sb.from('coaches').select('*'),
     sb.from('workers').select('*')
@@ -243,7 +243,7 @@ async function loadAthletes() {
   const container = document.getElementById('athletes-table-container');
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Բեռնում է...</div>';
 
-  const { data, error } = await sb.from('athletes').select('*').order('created_at', { ascending: true });
+  const { data, error } = await sb.from('athletes').select('*').order('created_at', { ascending: true }).limit(10000),
   if (error) console.error('loadAthletes error:', error);
   allAthletes = data || [];
 
