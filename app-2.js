@@ -243,7 +243,7 @@ async function loadAthletes() {
   const container = document.getElementById('athletes-table-container');
   container.innerHTML = '<div class="loading"><div class="spinner"></div> Բեռնում է...</div>';
 
-  const { data, error } = await sb.from('athletes').select('*').order('created_at', { ascending: true }).limit(10000),
+  const { data, error } = await sb.from('athletes').select('*').order('created_at', { ascending: true }).limit(10000);
   if (error) console.error('loadAthletes error:', error);
   allAthletes = data || [];
 
