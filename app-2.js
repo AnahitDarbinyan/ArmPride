@@ -331,15 +331,19 @@ function applyAthleteFilters() {
 
   // sort by passport_id (ԱՆՁՆԱԳԻՐ / ID) — numeric-aware
   filtered.sort((a, b) => {
-    const va = (a.passport_id || '').toString().toLowerCase();
-    const vb = (b.passport_id || '').toString().toLowerCase();
+    const va = (a.passport_id || '').toString().trim();
+    const vb = (b.passport_id || '').toString().trim();
     // empty IDs always go last regardless of direction
-    if (!va && !vb) return 0;
+    if (!va && !vb) {    
+      return athleteSortDir === 'asc'
+      ? new Date(a.created_at) - new Date(b.created_at)
+      : new Date(b.created_at) - new Date(a.created_at);
+  }};
     if (!va) return 1;
     if (!vb) return -1;
     // try numeric sort first
     const na = parseFloat(va), nb = parseFloat(vb);
-    if (!isNaN(na) && !isNaN(nb) && String(na) === va && String(nb) === vb) {
+    if (!isNaN(na) && !isNaN(nb)) {
       return athleteSortDir === 'asc' ? na - nb : nb - na;
     }
     return athleteSortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
