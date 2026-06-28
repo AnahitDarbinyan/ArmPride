@@ -1,7 +1,7 @@
 const SUPABASE_URL     = 'https://vzouzbybkbbaiupubfmj.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6b3V6Ynlia2JiYWl1cHViZm1qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjE3MjksImV4cCI6MjA5NTc5NzcyOX0.fVuREjAgEPNDasy-dxZlq603ilZNOIgxFuAU9q_fqgE';
 
-const SCHOOLS = [
+const DEFAULT_SCHOOLS = [
   'Համլետ Պատուրյանի անվան մարզադպրոց',
   'Արմֆայթինգ Էջմիածին ակադեմիա',
   'Արմֆայթինգ ակադեմիա',
@@ -9,6 +9,7 @@ const SCHOOLS = [
   'Արմավիրի ուժը',
   'Արմֆայթինգ Զվարթնոց'
 ];
+let allSchools = [];
 
 const MONTHS_HY = ['', 'Հունվար', 'Փետրվար', 'Մարտ', 'Ապրիլ', 'Մայիս', 'Հունիս', 'Հուլիս', 'Օգոստոս', 'Սեպտեմբեր', 'Հոկտեմբեր', 'Նոյեմբեր', 'Դեկտեմբեր'];
 
@@ -47,21 +48,88 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   populateSchoolSelect();
   await loadSports();
+  await loadSchools();
   loadDashboard();
 });
 
 // ============================================================
-// SCHOOLS
+// SCHOOLS MANAGEMENT
 // ============================================================
-function populateSchoolSelect() {
-  const sel = document.getElementById('f-school');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">Ընտրել մարզադպրոց</option>';
-  SCHOOLS.forEach(s => {
-    const o = document.createElement('option');
-    o.value = s; o.textContent = s;
-    sel.appendChild(o);
+async function loadSchools() {
+  const { data } = await sb.from('schools').select('*').order('name');
+  if (data && data.length) {
+    allSchools = data.map(s => s.name);
+  } else {
+    allSchools = [...DEFAULT_SCHOOLS];
+    await sb.from('schools').insert(DEFAULT_SCHOOLS.map(name => ({ name })));
+  }
+  populateSchoolSelects();
+}
+
+function populateSchoolSelects() {
+  ['f-school', 'fc-school', 'school-filter'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    const isFilter = id.includes('filter');
+    el.innerHTML = isFilter
+      ? '<option value="">Բոլոր/Մարզադպրոցներ</option>'
+      : '<option value="">Ընտրել մարզադպրոց</option>';
+    allSchools.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s; o.textContent = s;
+      el.appendChild(o);
+    });
+    if (cur) el.value = cur;
   });
+
+  if (!document.getElementById('schools-mgr-link')) {
+    const nav = document.querySelector('.sidebar-nav');
+    const a = document.createElement('div');
+    a.id = 'schools-mgr-link';
+    a.className = 'nav-item';
+    a.innerHTML = '<span class="nav-icon">🏫</span> Մարզադպրոցներ';
+    a.onclick = () => { renderSchoolManagerList(); document.getElementById('school-modal').style.display = 'flex'; };
+    nav.appendChild(a);
+  }
+  renderSchoolManagerList();
+}
+
+function renderSchoolManagerList() {
+  const el = document.getElementById('school-list-mgr');
+  if (!el) return;
+  el.innerHTML = allSchools.map(s => `
+    <div class="sport-list-item">
+      <span>${s}</span>
+      <button class="sport-del-btn" onclick="deleteSchool('${s.replace(/'/g,"\\'")}')">✕</button>
+    </div>`).join('');
+}
+
+async function addSchool() {
+  const input = document.getElementById('new-school-name');
+  const name  = input.value.trim();
+  const err   = document.getElementById('school-modal-error');
+  if (!name) return;
+  if (allSchools.includes(name)) { err.textContent = 'Մարզադպրոցն արդեն գոյություն ունի.'; return; }
+  err.textContent = '';
+  await sb.from('schools').insert({ name });
+  allSchools.push(name);
+  input.value = '';
+  populateSchoolSelects();
+}
+
+async function deleteSchool(name) {
+  if (!confirm(`Հեռացնել "${name}"?`)) return;
+  await sb.from('schools').delete().eq('name', name);
+  allSchools = allSchools.filter(s => s !== name);
+  populateSchoolSelects();
+}
+
+function closeSchoolModal(e)      { if (e.target.id === 'school-modal') closeSchoolModalDirect(); }
+function closeSchoolModalDirect() { document.getElementById('school-modal').style.display = 'none'; }
+
+function populateSchoolSelect() {
+  // legacy stub — real population now happens in populateSchoolSelects()
 }
 
 // ============================================================
@@ -600,6 +668,8 @@ function fillAthleteForm(a) {
   }
   // populate extra docs gallery
   renderExtraDocsEdit(a.extra_docs || []);
+  // load competitions for edit form
+  loadAthleteEditComps(a.id);
 }
 
 function setVal(id, val) {
@@ -654,6 +724,8 @@ function resetAthleteForm() {
     if (el) el.style.display = 'flex';
   });
   renderExtraDocsEdit([]);
+  athleteEditComps = [];
+  renderAthleteEditComps();
   const errEl = document.getElementById('form-error');
   if (errEl) errEl.textContent = '';
   const sucEl = document.getElementById('form-success');
@@ -1680,8 +1752,118 @@ function closeParticipantModal(e) { if (e.target.id === 'participant-modal') clo
 function closeParticipantModalDirect() { document.getElementById('participant-modal').style.display = 'none'; }
 
 // ============================================================
-// COACH EXTRA DOCS GALLERY
+// ATHLETE COMPETITIONS IN EDIT FORM
 // ============================================================
+let athleteEditComps = [];
+
+async function loadAthleteEditComps(athleteId) {
+  if (!athleteId) { athleteEditComps = []; renderAthleteEditComps(); return; }
+  const { data } = await sb.from('competition_participants')
+    .select('*, competitions(id, name, date, sport, location)')
+    .eq('athlete_id', athleteId)
+    .order('created_at', { ascending: false });
+  athleteEditComps = (data || []).filter(p => p.competitions);
+  renderAthleteEditComps();
+}
+
+function renderAthleteEditComps() {
+  const el = document.getElementById('athlete-edit-comps-list');
+  if (!el) return;
+  if (!athleteEditComps.length) {
+    el.innerHTML = '<p style="color:var(--text3);font-size:.88rem;padding:8px 0">Մրցույթ չի գրանցվել.</p>';
+    return;
+  }
+  el.innerHTML = athleteEditComps.map(p => `
+    <div class="athlete-edit-comp-row">
+      <div class="athlete-edit-comp-info">
+        <div class="athlete-edit-comp-name">${p.competitions.name}</div>
+        <div class="athlete-edit-comp-meta">
+          ${p.competitions.date ? new Date(p.competitions.date).toLocaleDateString('hy-AM') : ''}
+          ${p.weight_class ? ' · ' + p.weight_class : ''}
+          ${p.result ? ' · <span style="color:var(--gold);font-weight:700">' + getMedalEmoji(p.result) + ' ' + p.result + '</span>' : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="comp-action-btn" onclick="openEditAthleteComp('${p.id}')">✎</button>
+        <button class="comp-action-btn" style="border-color:rgba(196,18,48,.3);color:var(--red-light)" onclick="deleteAthleteComp('${p.id}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+async function openAddAthleteCompModal() {
+  const athleteId = document.getElementById('athlete-id').value;
+  if (!athleteId) { alert('Պահպանեք մարզիկին նախ.'); return; }
+  document.getElementById('athlete-comp-modal-title').textContent = 'Ավելացնել Մրցույթ';
+  document.getElementById('athlete-comp-part-id').value = '';
+  document.getElementById('athlete-comp-select').value = '';
+  document.getElementById('athlete-comp-weight').value = '';
+  document.getElementById('athlete-comp-result').value = '';
+  document.getElementById('athlete-comp-notes').value = '';
+  document.getElementById('athlete-comp-error').textContent = '';
+  // populate competition select
+  const sel = document.getElementById('athlete-comp-select');
+  sel.innerHTML = '<option value="">Ընտրել մրցույթ...</option>';
+  allCompetitions.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c.id;
+    o.textContent = c.name + (c.date ? ' (' + new Date(c.date).getFullYear() + ')' : '');
+    sel.appendChild(o);
+  });
+  document.getElementById('athlete-comp-modal').style.display = 'flex';
+}
+
+async function openEditAthleteComp(partId) {
+  await openAddAthleteCompModal();
+  const p = athleteEditComps.find(x => x.id === partId);
+  if (!p) return;
+  document.getElementById('athlete-comp-modal-title').textContent = 'Խմբագրել Մրցույթ';
+  document.getElementById('athlete-comp-part-id').value  = p.id;
+  document.getElementById('athlete-comp-select').value   = p.competition_id || '';
+  document.getElementById('athlete-comp-weight').value   = p.weight_class || '';
+  document.getElementById('athlete-comp-result').value   = p.result || '';
+  document.getElementById('athlete-comp-notes').value    = p.notes || '';
+}
+
+async function saveAthleteComp() {
+  const err       = document.getElementById('athlete-comp-error');
+  const athleteId = document.getElementById('athlete-id').value;
+  const compId    = document.getElementById('athlete-comp-select').value;
+  const weight    = document.getElementById('athlete-comp-weight').value.trim();
+  err.textContent = '';
+  if (!compId)  { err.textContent = 'Ընտրեք մրցույթ.'; return; }
+  if (!weight)  { err.textContent = 'Քաշը պարտադիր է.'; return; }
+
+  const payload = {
+    competition_id: compId,
+    athlete_id:     athleteId,
+    weight_class:   weight,
+    result:         document.getElementById('athlete-comp-result').value.trim() || null,
+    notes:          document.getElementById('athlete-comp-notes').value.trim()  || null,
+  };
+
+  const editId = document.getElementById('athlete-comp-part-id').value;
+  let dbError;
+  if (editId) {
+    const { error } = await sb.from('competition_participants').update(payload).eq('id', editId);
+    dbError = error;
+  } else {
+    const { error } = await sb.from('competition_participants').insert(payload);
+    dbError = error;
+  }
+  if (dbError) { err.textContent = `Սխալ: ${dbError.message}`; return; }
+  closeAthleteCompModalDirect();
+  await loadAthleteEditComps(athleteId);
+}
+
+async function deleteAthleteComp(partId) {
+  if (!confirm('Հեռացնե՞լ այս մրցույթը:')) return;
+  await sb.from('competition_participants').delete().eq('id', partId);
+  const athleteId = document.getElementById('athlete-id').value;
+  await loadAthleteEditComps(athleteId);
+}
+
+function closeAthleteCompModal(e)      { if (e.target.id === 'athlete-comp-modal') closeAthleteCompModalDirect(); }
+function closeAthleteCompModalDirect() { document.getElementById('athlete-comp-modal').style.display = 'none'; }
 let coachExtraDocsExisting = [];
 
 function renderCoachExtraDocsEdit(urls) {
