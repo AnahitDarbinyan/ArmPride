@@ -519,7 +519,7 @@ async function openAthleteDetail(id) {
     : `<div class="detail-photo">${initials}</div>`;
 
   const docBtns = [
-    a.passport_url ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${a.passport_url}')">▤ Անձնագիր</button>` : '',
+    a.passport_url ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${a.passport_url}')">▤ Կոչում</button>` : '',
     a.parent1_id_url ? `<button class="btn-secondary" style="width:100%;font-size:12px;margin-bottom:6px" onclick="viewImage('${a.parent1_id_url}')">▤ Ծնող ID</button>` : '',
   ].join('');
 
