@@ -255,12 +255,12 @@ img{max-width:100%;display:block}
 /* SCHOOL MODAL */
 #school-modal .modal-inner{max-width:440px}
 
-/* ATHLETE EDIT COMP ROWS */
-.athlete-edit-comp-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:8px;border:1px solid var(--border)}
-.athlete-edit-comp-row:last-child{margin-bottom:0}
-.athlete-edit-comp-info{flex:1;min-width:0}
-.athlete-edit-comp-name{font-weight:700;color:var(--text1);font-size:.92rem;margin-bottom:3px}
-.athlete-edit-comp-meta{font-size:.8rem;color:var(--text3);line-height:1.5}
+/* ATHLETE INLINE COMPETITION ROWS */
+#athlete-comps-rows{display:flex;flex-direction:column;gap:14px}
+.comp-row-item{position:relative;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:18px 44px 18px 18px}
+.comp-row-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.comp-row-del{position:absolute;top:12px;right:12px;background:rgba(196,18,48,.15);border:1px solid rgba(196,18,48,.35);color:var(--red-light);width:26px;height:26px;border-radius:50%;font-size:.8rem;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center}
+.comp-row-del:hover{background:rgba(196,18,48,.3)}
 
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -488,13 +488,24 @@ img{max-width:100%;display:block}
             <input class="form-input" id="f-rank" type="text" placeholder="Կոչում">
           </div>
           <div class="form-group">
+            <label>Մարզիկի Անձնագիր</label>
+            <div class="upload-zone">
+              <input type="file" id="passport-input" accept="image/*,application/pdf" onchange="previewFile(this,'passport-preview','passport-placeholder')">
+              <div class="upload-placeholder" id="passport-placeholder">
+                <span class="upload-icon">▤</span>
+                <span class="upload-label">Անձնագիր</span>
+              </div>
+              <img id="passport-preview" class="upload-preview" style="display:none">
+            </div>
+          </div>
+          <div class="form-group">
             <label>Մարզիչ</label>
             <input class="form-input" id="f-coach" type="text" placeholder="Մարզչի անունը">
           </div>
           <div class="form-group">
             <label>Մարզադպրոց</label>
             <select class="form-select" id="f-school">
-              <option value="">Ընtrel marzadproc</option>
+              <option value="">Ընտրել մարզադպրոց</option>
             </select>
           </div>
           <div class="form-group">
@@ -530,18 +541,17 @@ img{max-width:100%;display:block}
         </div>
       </div>
 
-      <!-- COMPETITIONS IN EDIT FORM -->
+      <!-- COMPETITIONS — INLINE ENTRY -->
       <div class="form-section" id="athlete-edit-comps-section">
         <div class="form-section-title" style="display:flex;justify-content:space-between;align-items:center">
           <span>Մրցույթներ</span>
-          <button type="button" class="btn-primary" style="padding:8px 16px;font-size:.8rem" onclick="openAddAthleteCompModal()">+ Ավելացնել</button>
+          <button type="button" class="btn-primary" style="padding:8px 16px;font-size:.8rem" onclick="addAthleteCompRow()">+ Ավելացնել մրցույթ</button>
         </div>
-        <div id="athlete-edit-comps-list">
-          <p style="color:var(--text3);font-size:.88rem;padding:8px 0">Պահպանեք մարզիկին նախ, հետո ավելացրեք մրցույթ.</p>
-        </div>
+        <div id="athlete-comps-rows"></div>
       </div>
 
-      
+      <div class="form-section">
+        <div class="form-section-title">Լուսանկար</div>
         <div class="upload-grid" style="grid-template-columns:1fr">
           <div class="form-group">
             <label>Անձնական Լուսանկար</label>
@@ -560,21 +570,7 @@ img{max-width:100%;display:block}
 
       <div class="form-section">
         <div class="form-section-title">Փաստաթղթեր</div>
-        <div class="upload-grid" style="grid-template-columns:1fr">
-          <div class="form-group">
-            <label>Մարզիկի Անձնագիր</label>
-            <div class="upload-zone">
-              <input type="file" id="passport-input" accept="image/*,application/pdf" onchange="previewFile(this,'passport-preview','passport-placeholder')">
-              <div class="upload-placeholder" id="passport-placeholder">
-                <span class="upload-icon">▤</span>
-                <span class="upload-label">Անձնագիր</span>
-              </div>
-              <img id="passport-preview" class="upload-preview" style="display:none">
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group" style="margin-top:18px">
+        <div class="form-group">
           <label>Այլ Փաստաթղթեր</label>
           <div class="upload-zone">
             <input type="file" id="extra-docs-input" accept="image/*,application/pdf" multiple onchange="handleExtraDocsChange(this)">
@@ -978,40 +974,6 @@ img{max-width:100%;display:block}
     </div>
     <div style="color:var(--red-light);font-size:.85rem;margin-bottom:10px" id="school-modal-error"></div>
     <div id="school-list-mgr"></div>
-  </div>
-</div>
-
-<!-- ATHLETE COMPETITION MODAL (from edit form) -->
-<div class="modal" id="athlete-comp-modal" onclick="closeAthleteCompModal(event)">
-  <div class="modal-inner" style="max-width:520px">
-    <button class="modal-close" onclick="closeAthleteCompModalDirect()">✕</button>
-    <div class="modal-title" id="athlete-comp-modal-title">Ավելացնել Մրցույթ</div>
-    <input type="hidden" id="athlete-comp-part-id">
-    <div class="form-grid">
-      <div class="form-group" style="grid-column:1/-1">
-        <label>Մրցույթ <span class="req">*</span></label>
-        <select class="form-select" id="athlete-comp-select">
-          <option value="">Ընտրել մրցույթ...</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Քաշ/Խումբ <span class="req">*</span></label>
-        <input class="form-input" id="athlete-comp-weight" type="text" placeholder="-74կg, +90կg...">
-      </div>
-      <div class="form-group">
-        <label>Արդյունք / Մեդալ</label>
-        <input class="form-input" id="athlete-comp-result" type="text" placeholder="1-ին տեղ / Ոսկի...">
-      </div>
-      <div class="form-group" style="grid-column:1/-1">
-        <label>Նշումներ</label>
-        <input class="form-input" id="athlete-comp-notes" type="text" placeholder="Նշումներ...">
-      </div>
-    </div>
-    <div style="color:var(--red-light);font-size:.9rem;margin-top:8px" id="athlete-comp-error"></div>
-    <div class="form-actions" style="margin-top:18px">
-      <button class="btn-primary" onclick="saveAthleteComp()">✓ Պահել</button>
-      <button class="btn-secondary" onclick="closeAthleteCompModalDirect()">Չեղարկել</button>
-    </div>
   </div>
 </div>
 
