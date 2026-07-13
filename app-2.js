@@ -737,8 +737,7 @@ function resetAthleteForm() {
     if (el) el.style.display = 'flex';
   });
   renderExtraDocsEdit([]);
-  athleteEditComps = [];
-  renderAthleteEditComps();
+  clearAthleteCompRows();
   const errEl = document.getElementById('form-error');
   if (errEl) errEl.textContent = '';
   const sucEl = document.getElementById('form-success');
@@ -818,6 +817,7 @@ async function saveAthlete() {
     await uploadAthleteFile('passport-input',   athleteId, 'passports', 'passport_url');
     await uploadAthleteFile('parent1-id-input', athleteId, 'parent-ids', 'parent1_id_url');
     await uploadExtraDocs(athleteId);
+    await saveAthleteCompRows(athleteId);
   }
 
   btn.innerHTML = originalLabel; btn.disabled = false;
@@ -1583,7 +1583,7 @@ async function openCompDetail(id) {
     <div class="detail-card" style="margin-bottom:16px">
       <div class="detail-card-title" style="color:var(--gold)">⚖ ${weight} <span style="color:var(--text3);font-size:.8rem">(${participants.length} մարզիկ)</span></div>
       <table class="comp-table" style="margin-top:8px">
-        <thead><tr><th>Մարզիկ</th><th>Արդյունք</th><th>Նշումներ</th><th></th></tr></thead>
+        <thead><tr><th>Մարzik</th><th>Արդյունք</th><th>Նշումներ</th><th></th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>`;
@@ -1597,10 +1597,10 @@ async function openCompDetail(id) {
   <div class="detail-card" style="margin-bottom:20px">
     <div class="detail-card-title" style="font-size:1.3rem;color:var(--text1)">${comp.name}</div>
     <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:12px">
-      ${comp.sport    ? `<div><span style="color:var(--text3);font-size:.8rem">Մարզաձև</span><div style="color:var(--text1);font-weight:600">${comp.sport}</div></div>` : ''}
+      ${comp.sport    ? `<div><span style="color:var(--text3);font-size:.8rem">Մարzаձև</span><div style="color:var(--text1);font-weight:600">${comp.sport}</div></div>` : ''}
       ${comp.date     ? `<div><span style="color:var(--text3);font-size:.8rem">Ամսաթիվ</span><div style="color:var(--text1);font-weight:600">${dateStr}</div></div>` : ''}
       ${comp.location ? `<div><span style="color:var(--text3);font-size:.8rem">Վայր</span><div style="color:var(--text1);font-weight:600">${comp.location}</div></div>` : ''}
-      <div><span style="color:var(--text3);font-size:.8rem">Մարզիկներ</span><div style="color:var(--gold);font-weight:700;font-size:1.2rem">${parts ? parts.length : 0}</div></div>
+      <div><span style="color:var(--text3);font-size:.8rem">Մարzikner</span><div style="color:var(--gold);font-weight:700;font-size:1.2rem">${parts ? parts.length : 0}</div></div>
     </div>
     ${comp.notes ? `<div style="margin-top:12px;color:var(--text3);font-size:.88rem">${comp.notes}</div>` : ''}
   </div>
@@ -1691,7 +1691,7 @@ async function deleteCurrentCompetition() {
 // ── PARTICIPANT MODAL ────────────────────────────────────────────────────────
 async function openAddParticipantModal() {
   if (!currentCompetitionId) return;
-  document.getElementById('participant-modal-title').textContent = 'Մարզիկ ավելացնել մրցույթին';
+  document.getElementById('participant-modal-title').textContent = 'Մարzik ավելացնել մրցույթին';
   document.getElementById('participant-id').value  = '';
   document.getElementById('part-weight').value     = '';
   document.getElementById('part-result').value     = '';
@@ -1700,7 +1700,7 @@ async function openAddParticipantModal() {
 
   const athletes = await getAthleteOptions();
   const sel = document.getElementById('part-athlete');
-  sel.innerHTML = '<option value="">Ընտրել մարզիկ...</option>';
+  sel.innerHTML = '<option value="">Ընտրել մարzik...</option>';
   athletes.forEach(a => {
     const o = document.createElement('option');
     o.value = a.id;
@@ -1714,7 +1714,7 @@ async function openEditParticipantModal(partId) {
   const { data: p } = await sb.from('competition_participants').select('*').eq('id', partId).single();
   if (!p) return;
   await openAddParticipantModal();
-  document.getElementById('participant-modal-title').textContent = 'Խմբագրել մարզիկ';
+  document.getElementById('participant-modal-title').textContent = 'Խմբագրել մարzik';
   document.getElementById('participant-id').value  = p.id;
   document.getElementById('part-athlete').value    = p.athlete_id || '';
   document.getElementById('part-weight').value     = p.weight_class || '';
@@ -1727,7 +1727,7 @@ async function saveParticipant() {
   err.textContent = '';
   const athleteId   = document.getElementById('part-athlete').value;
   const weight      = document.getElementById('part-weight').value.trim();
-  if (!athleteId) { err.textContent = 'Ընտրել մարզիկ'; return; }
+  if (!athleteId) { err.textContent = 'Ընտրել մարzik'; return; }
   if (!weight)    { err.textContent = 'Քաշը պարտադիր է.'; return; }
 
   const payload = {
@@ -1756,7 +1756,7 @@ async function saveParticipant() {
 }
 
 async function deleteParticipant(partId) {
-  if (!confirm('Հեռացնել մարզիկին մրցույթից?')) return;
+  if (!confirm('Հeraцnel մարzikin mrcuytic?')) return;
   await sb.from('competition_participants').delete().eq('id', partId);
   openCompDetail(currentCompetitionId);
 }
@@ -1765,118 +1765,191 @@ function closeParticipantModal(e) { if (e.target.id === 'participant-modal') clo
 function closeParticipantModalDirect() { document.getElementById('participant-modal').style.display = 'none'; }
 
 // ============================================================
-// ATHLETE COMPETITIONS IN EDIT FORM
+// ATHLETE COMPETITIONS — INLINE ROWS IN THE ATHLETE FORM
 // ============================================================
-let athleteEditComps = [];
+let athleteCompRowCounter  = 0;
+let athleteCompRowsToDelete = [];
+
+function sportOptionsHtml(selected) {
+  const esc = (s) => (s || '').toString().replace(/"/g, '&quot;');
+  let html = '<option value="">Ընտրել մարզաձև</option>';
+  allSports.forEach(s => {
+    html += `<option value="${esc(s)}" ${s === selected ? 'selected' : ''}>${s}</option>`;
+  });
+  return html;
+}
+
+function escAttr(v) {
+  return (v === null || v === undefined ? '' : String(v)).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+function renderAthleteCompsEmptyState() {
+  const container = document.getElementById('athlete-comps-rows');
+  if (!container) return;
+  const hasRows = !!container.querySelector('.comp-row-item');
+  let empty = document.getElementById('athlete-comps-empty');
+  if (hasRows) {
+    if (empty) empty.remove();
+  } else if (!empty) {
+    empty = document.createElement('p');
+    empty.id = 'athlete-comps-empty';
+    empty.style.cssText = 'color:var(--text3);font-size:.88rem;padding:8px 0';
+    empty.textContent = 'Մրցույթ ավելացված չէ.';
+    container.appendChild(empty);
+  }
+}
+
+function addAthleteCompRow(data = {}) {
+  const container = document.getElementById('athlete-comps-rows');
+  if (!container) return;
+  const empty = document.getElementById('athlete-comps-empty');
+  if (empty) empty.remove();
+
+  const rowId = 'acr_' + (athleteCompRowCounter++);
+  const wrap = document.createElement('div');
+  wrap.className = 'comp-row-item';
+  wrap.dataset.rowId = rowId;
+  wrap.dataset.participantId  = data.participantId  || '';
+  wrap.dataset.competitionId  = data.competitionId  || '';
+
+  wrap.innerHTML = `
+    <div class="comp-row-grid">
+      <div class="form-group">
+        <label>Մրցույթի անուն <span class="req">*</span></label>
+        <input class="form-input comp-row-name" type="text" value="${escAttr(data.name)}" placeholder="Մրցույթի անուն">
+      </div>
+      <div class="form-group">
+        <label>Ամսաթիվ</label>
+        <input class="form-input comp-row-date" type="date" value="${escAttr(data.date)}">
+      </div>
+      <div class="form-group">
+        <label>Վայր</label>
+        <input class="form-input comp-row-location" type="text" value="${escAttr(data.location)}" placeholder="Վայր">
+      </div>
+      <div class="form-group">
+        <label>Մարզաձև</label>
+        <select class="form-select comp-row-sport">${sportOptionsHtml(data.sport)}</select>
+      </div>
+      <div class="form-group">
+        <label>Քաշ/Խումբ <span class="req">*</span></label>
+        <input class="form-input comp-row-weight" type="text" value="${escAttr(data.weight)}" placeholder="-74կգ, +90կգ...">
+      </div>
+      <div class="form-group">
+        <label>Արդյունք / Մեդալ</label>
+        <input class="form-input comp-row-result" type="text" value="${escAttr(data.result)}" placeholder="1-ին տեղ / Ոսկի...">
+      </div>
+      <div class="form-group" style="grid-column:1/-1">
+        <label>Նշումներ</label>
+        <input class="form-input comp-row-notes" type="text" value="${escAttr(data.notes)}" placeholder="Նշումներ...">
+      </div>
+    </div>
+    <button type="button" class="comp-row-del" onclick="removeAthleteCompRow('${rowId}')" title="Հեռացնել">✕</button>
+  `;
+  container.appendChild(wrap);
+}
+
+function removeAthleteCompRow(rowId) {
+  const container = document.getElementById('athlete-comps-rows');
+  if (!container) return;
+  const row = container.querySelector(`[data-row-id="${rowId}"]`);
+  if (!row) return;
+  const participantId = row.dataset.participantId;
+  if (participantId) athleteCompRowsToDelete.push(participantId);
+  row.remove();
+  renderAthleteCompsEmptyState();
+}
+
+function clearAthleteCompRows() {
+  const container = document.getElementById('athlete-comps-rows');
+  if (container) container.innerHTML = '';
+  athleteCompRowsToDelete = [];
+  renderAthleteCompsEmptyState();
+}
 
 async function loadAthleteEditComps(athleteId) {
-  if (!athleteId) { athleteEditComps = []; renderAthleteEditComps(); return; }
+  const container = document.getElementById('athlete-comps-rows');
+  if (container) container.innerHTML = '';
+  athleteCompRowsToDelete = [];
+
+  if (!athleteId) { renderAthleteCompsEmptyState(); return; }
+
   const { data } = await sb.from('competition_participants')
     .select('*, competitions(id, name, date, sport, location)')
     .eq('athlete_id', athleteId)
     .order('created_at', { ascending: false });
-  athleteEditComps = (data || []).filter(p => p.competitions);
-  renderAthleteEditComps();
-}
 
-function renderAthleteEditComps() {
-  const el = document.getElementById('athlete-edit-comps-list');
-  if (!el) return;
-  if (!athleteEditComps.length) {
-    el.innerHTML = '<p style="color:var(--text3);font-size:.88rem;padding:8px 0">Մրցույթ չի գրանցվել.</p>';
-    return;
-  }
-  el.innerHTML = athleteEditComps.map(p => `
-    <div class="athlete-edit-comp-row">
-      <div class="athlete-edit-comp-info">
-        <div class="athlete-edit-comp-name">${p.competitions.name}</div>
-        <div class="athlete-edit-comp-meta">
-          ${p.competitions.date ? new Date(p.competitions.date).toLocaleDateString('hy-AM') : ''}
-          ${p.weight_class ? ' · ' + p.weight_class : ''}
-          ${p.result ? ' · <span style="color:var(--gold);font-weight:700">' + getMedalEmoji(p.result) + ' ' + p.result + '</span>' : ''}
-        </div>
-      </div>
-      <div style="display:flex;gap:6px;flex-shrink:0">
-        <button class="comp-action-btn" onclick="openEditAthleteComp('${p.id}')">✎</button>
-        <button class="comp-action-btn" style="border-color:rgba(196,18,48,.3);color:var(--red-light)" onclick="deleteAthleteComp('${p.id}')">✕</button>
-      </div>
-    </div>`).join('');
-}
-
-async function openAddAthleteCompModal() {
-  const athleteId = document.getElementById('athlete-id').value;
-  if (!athleteId) { alert('Պահպանեք մարզիկին նախ.'); return; }
-  document.getElementById('athlete-comp-modal-title').textContent = 'Ավելացնել Մրցույթ';
-  document.getElementById('athlete-comp-part-id').value = '';
-  document.getElementById('athlete-comp-select').value = '';
-  document.getElementById('athlete-comp-weight').value = '';
-  document.getElementById('athlete-comp-result').value = '';
-  document.getElementById('athlete-comp-notes').value = '';
-  document.getElementById('athlete-comp-error').textContent = '';
-  // populate competition select
-  const sel = document.getElementById('athlete-comp-select');
-  sel.innerHTML = '<option value="">Ընտրել մրցույթ...</option>';
-  allCompetitions.forEach(c => {
-    const o = document.createElement('option');
-    o.value = c.id;
-    o.textContent = c.name + (c.date ? ' (' + new Date(c.date).getFullYear() + ')' : '');
-    sel.appendChild(o);
+  const rows = (data || []).filter(p => p.competitions);
+  rows.forEach(p => {
+    addAthleteCompRow({
+      participantId: p.id,
+      competitionId: p.competitions.id,
+      name:     p.competitions.name || '',
+      date:     p.competitions.date || '',
+      location: p.competitions.location || '',
+      sport:    p.competitions.sport || '',
+      weight:   p.weight_class || '',
+      result:   p.result || '',
+      notes:    p.notes || ''
+    });
   });
-  document.getElementById('athlete-comp-modal').style.display = 'flex';
+  renderAthleteCompsEmptyState();
 }
 
-async function openEditAthleteComp(partId) {
-  await openAddAthleteCompModal();
-  const p = athleteEditComps.find(x => x.id === partId);
-  if (!p) return;
-  document.getElementById('athlete-comp-modal-title').textContent = 'Խմբագրել Մրցույթ';
-  document.getElementById('athlete-comp-part-id').value  = p.id;
-  document.getElementById('athlete-comp-select').value   = p.competition_id || '';
-  document.getElementById('athlete-comp-weight').value   = p.weight_class || '';
-  document.getElementById('athlete-comp-result').value   = p.result || '';
-  document.getElementById('athlete-comp-notes').value    = p.notes || '';
-}
+async function saveAthleteCompRows(athleteId) {
+  const container = document.getElementById('athlete-comps-rows');
+  if (!container) return;
+  const rows = container.querySelectorAll('.comp-row-item');
 
-async function saveAthleteComp() {
-  const err       = document.getElementById('athlete-comp-error');
-  const athleteId = document.getElementById('athlete-id').value;
-  const compId    = document.getElementById('athlete-comp-select').value;
-  const weight    = document.getElementById('athlete-comp-weight').value.trim();
-  err.textContent = '';
-  if (!compId)  { err.textContent = 'Ընտրեք մրցույթ.'; return; }
-  if (!weight)  { err.textContent = 'Քաշը պարտադիր է.'; return; }
+  for (const row of rows) {
+    const name   = row.querySelector('.comp-row-name')?.value.trim();
+    const weight = row.querySelector('.comp-row-weight')?.value.trim();
+    if (!name || !weight) continue; // incomplete row — skip silently
 
-  const payload = {
-    competition_id: compId,
-    athlete_id:     athleteId,
-    weight_class:   weight,
-    result:         document.getElementById('athlete-comp-result').value.trim() || null,
-    notes:          document.getElementById('athlete-comp-notes').value.trim()  || null,
-  };
+    const date     = row.querySelector('.comp-row-date')?.value || null;
+    const location = row.querySelector('.comp-row-location')?.value.trim() || null;
+    const sport    = row.querySelector('.comp-row-sport')?.value || null;
+    const result   = row.querySelector('.comp-row-result')?.value.trim() || null;
+    const notes    = row.querySelector('.comp-row-notes')?.value.trim() || null;
 
-  const editId = document.getElementById('athlete-comp-part-id').value;
-  let dbError;
-  if (editId) {
-    const { error } = await sb.from('competition_participants').update(payload).eq('id', editId);
-    dbError = error;
-  } else {
-    const { error } = await sb.from('competition_participants').insert(payload);
-    dbError = error;
+    let competitionId = row.dataset.competitionId || '';
+    const compPayload = { name, date, location, sport };
+
+    try {
+      if (competitionId) {
+        const { error } = await sb.from('competitions').update(compPayload).eq('id', competitionId);
+        if (error) console.error('Competition update error:', error);
+      } else {
+        const { data, error } = await sb.from('competitions').insert(compPayload).select().single();
+        if (error) { console.error('Competition insert error:', error); continue; }
+        competitionId = data.id;
+        row.dataset.competitionId = competitionId;
+      }
+    } catch (e) { console.error('Competition save exception:', e); continue; }
+
+    const participantId = row.dataset.participantId || '';
+    const partPayload = {
+      competition_id: competitionId,
+      athlete_id:     athleteId,
+      weight_class:   weight,
+      result, notes
+    };
+
+    try {
+      if (participantId) {
+        await sb.from('competition_participants').update(partPayload).eq('id', participantId);
+      } else {
+        const { data, error } = await sb.from('competition_participants').insert(partPayload).select().single();
+        if (!error && data) row.dataset.participantId = data.id;
+      }
+    } catch (e) { console.error('Participant save exception:', e); }
   }
-  if (dbError) { err.textContent = `Սխալ: ${dbError.message}`; return; }
-  closeAthleteCompModalDirect();
-  await loadAthleteEditComps(athleteId);
+
+  for (const pid of athleteCompRowsToDelete) {
+    await sb.from('competition_participants').delete().eq('id', pid);
+  }
+  athleteCompRowsToDelete = [];
 }
 
-async function deleteAthleteComp(partId) {
-  if (!confirm('Հեռացնե՞լ այս մրցույթը:')) return;
-  await sb.from('competition_participants').delete().eq('id', partId);
-  const athleteId = document.getElementById('athlete-id').value;
-  await loadAthleteEditComps(athleteId);
-}
-
-function closeAthleteCompModal(e)      { if (e.target.id === 'athlete-comp-modal') closeAthleteCompModalDirect(); }
-function closeAthleteCompModalDirect() { document.getElementById('athlete-comp-modal').style.display = 'none'; }
 let coachExtraDocsExisting = [];
 
 function renderCoachExtraDocsEdit(urls) {
