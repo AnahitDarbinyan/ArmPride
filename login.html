@@ -181,6 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('email').addEventListener('keydown', e => {
     if (e.key === 'Enter') handleLogin();
   });
+
+  const reason = sessionStorage.getItem('logout-reason');
+  if (reason) {
+    document.getElementById('login-error').textContent = reason;
+    sessionStorage.removeItem('logout-reason');
+  }
 });
 
 (async () => {
