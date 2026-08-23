@@ -316,6 +316,9 @@ img{max-width:100%;display:block}
     <div class="nav-item" data-page="workers" onclick="showPage('workers')">
       <span class="nav-icon">👔</span> Աշխատակիցներ
     </div>
+    <div class="nav-item" data-page="director" onclick="showPage('director')">
+      <span class="nav-icon">🏆</span> Տնօրեն
+    </div>
     <div class="nav-section-title">Գործունեություն</div>
     <div class="nav-item" data-page="competitions" onclick="showPage('competitions')">
       <span class="nav-icon">🏅</span> Մրցույթներ
@@ -844,6 +847,118 @@ img{max-width:100%;display:block}
       </div>
       <div class="form-error" id="worker-form-error"></div>
       <div class="form-success" id="worker-form-success"></div>
+    </div>
+  </div>
+
+  <!-- DIRECTOR -->
+  <div id="page-director" class="page">
+    <div class="page-header">
+      <h1>Տնօրեն</h1>
+      <button class="btn-primary" id="director-edit-toggle-btn" onclick="toggleDirectorEdit()">✎ Խմբագրել</button>
+    </div>
+
+    <!-- VIEW MODE -->
+    <div id="director-view">
+      <div id="director-view-content"><div class="loading"><div class="spinner"></div> Բեռնում է...</div></div>
+    </div>
+
+    <!-- EDIT MODE -->
+    <div id="director-edit" style="display:none">
+      <div class="form-container">
+
+        <div class="form-section">
+          <div class="form-section-title">Հիմնական Տվյալներ</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Անուն Ազգանուն <span class="req">*</span></label>
+              <input class="form-input" id="d-full-name" type="text" placeholder="Անդրանիկ Կարապետյան">
+            </div>
+            <div class="form-group">
+              <label>Պաշտոն</label>
+              <input class="form-input" id="d-title" type="text" placeholder="Տնօրեն">
+            </div>
+            <div class="form-group">
+              <label>Կոչում / Աստիճան</label>
+              <input class="form-input" id="d-rank" type="text" placeholder="Սպորտի վաստակավոր վարպետ, սև գոտի...">
+            </div>
+            <div class="form-group">
+              <label>Փորձ (տարիներ)</label>
+              <input class="form-input" id="d-experience" type="text" placeholder="օր.՝ 15+ տարի">
+            </div>
+            <div class="form-group">
+              <label>Հեռախոս</label>
+              <input class="form-input" id="d-phone" type="tel" placeholder="+374...">
+            </div>
+            <div class="form-group">
+              <label>Էլ. փոստ</label>
+              <input class="form-input" id="d-email" type="email" placeholder="email@example.com">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Կենսագրություն</div>
+          <div class="form-group">
+            <label>Կենսագրություն</label>
+            <textarea class="form-textarea" id="d-bio" placeholder="Կարճ կենսագրություն..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Կրթություն և Որակավորումներ</div>
+          <div class="form-group">
+            <label>Կրթություն / Որակավորումներ</label>
+            <textarea class="form-textarea" id="d-education" placeholder="Կրթություն, լիցենզիաներ, սերտիֆիկատներ..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Ակումբի Հիմնադրման Պատմություն</div>
+          <div class="form-group">
+            <label>Հիմնադրման պատմություն</label>
+            <textarea class="form-textarea" id="d-founding-story" placeholder="Ինչպես և ինչու է հիմնադրվել ակումբը..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Ձեռքբերումներ</div>
+          <div class="form-group">
+            <label>Ձեռքբերումներ</label>
+            <textarea class="form-textarea" id="d-achievements" placeholder="Մրցանակներ, արդյունքներ..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Անձնական Ուղերձ</div>
+          <div class="form-group">
+            <label>Մեջբերում / Ուղերձ</label>
+            <textarea class="form-textarea" id="d-quote" placeholder="Կարճ մեջբերում կամ ուղերձ..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Լուսանկար</div>
+          <div class="form-group">
+            <label>Տնօրենի Լուսանկար</label>
+            <div class="upload-zone">
+              <input type="file" id="director-photo-input" accept="image/*" onchange="previewFile(this,'director-photo-preview','director-photo-placeholder')">
+              <div class="upload-placeholder" id="director-photo-placeholder">
+                <span class="upload-icon">📷</span>
+                <span class="upload-label">Ավելացնել լուսանկար</span>
+                <span class="upload-sublabel">JPG, PNG, WEBP</span>
+              </div>
+              <img id="director-photo-preview" class="upload-preview" style="display:none">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-primary" id="save-director-btn" onclick="saveDirector()">✓ Պահել</button>
+          <button class="btn-secondary" onclick="toggleDirectorEdit(false)">Չեղարկել</button>
+        </div>
+        <div class="form-error" id="director-form-error"></div>
+        <div class="form-success" id="director-form-success"></div>
+      </div>
     </div>
   </div>
 
