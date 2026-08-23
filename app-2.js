@@ -249,6 +249,7 @@ function showPage(page) {
   if (page === 'competitions') loadCompetitions();
   if (page === 'workers')      loadWorkers();
   if (page === 'add-worker' && !document.getElementById('worker-id').value) resetWorkerForm();
+  if (page === 'director')     loadDirector();
 }
 
 // ============================================================
@@ -2077,4 +2078,176 @@ function handleWorkerExtraDocsChange(input) {
   }).join('');
   renderWorkerExtraDocsEdit(workerExtraDocsExisting);
   container.insertAdjacentHTML('beforeend', pendingHtml);
+}
+
+// ============================================================
+// DIRECTOR (Տնօրեն) — single-record profile section
+// ============================================================
+let currentDirector = null;
+
+async function loadDirector() {
+  const view = document.getElementById('director-view-content');
+  view.innerHTML = '<div class="loading"><div class="spinner"></div> Բեռնում է...</div>';
+
+  const { data, error } = await sb.from('director').select('*').eq('id', 1).single();
+  currentDirector = (!error && data) ? data : null;
+
+  renderDirectorView(currentDirector);
+
+  // If nothing has been filled in yet, drop straight into edit mode.
+  if (!currentDirector) {
+    toggleDirectorEdit(true);
+  } else {
+    toggleDirectorEdit(false);
+  }
+}
+
+function renderDirectorView(d) {
+  const view = document.getElementById('director-view-content');
+
+  if (!d || !d.full_name) {
+    view.innerHTML = `<div class="empty-state"><div class="empty-icon">🏆</div><p>Տնօրենի տվյալները դեռ լրացված չեն։ Սեղմեք «Խմբագրել»՝ ավելացնելու համար։</p></div>`;
+    return;
+  }
+
+  const initials = (d.full_name || '').split(' ').map(w => w[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+  const photoEl = d.photo_url
+    ? `<div class="detail-photo" style="width:170px;height:170px"><img src="${d.photo_url}" style="width:100%;height:100%;object-fit:cover;cursor:zoom-in" onclick="viewImage('${d.photo_url}')"></div>`
+    : `<div class="detail-photo" style="width:170px;height:170px;font-size:2.6rem">${initials}</div>`;
+
+  view.innerHTML = `
+  <div class="detail-layout">
+    <div class="detail-sidebar">
+      ${photoEl}
+      <div class="detail-full-name" style="font-size:1.35rem">${d.full_name}</div>
+      ${d.title ? `<div class="detail-sport-badge">${d.title}</div>` : ''}
+      <div class="detail-meta-list">
+        ${d.rank            ? `<div class="detail-meta-item"><span class="detail-meta-key">Կոչում</span><span class="detail-meta-val">${d.rank}</span></div>` : ''}
+        ${d.experience_years ? `<div class="detail-meta-item"><span class="detail-meta-key">Փորձ</span><span class="detail-meta-val">${d.experience_years}</span></div>` : ''}
+        ${d.phone           ? `<div class="detail-meta-item"><span class="detail-meta-key">Հեռախոս</span><span class="detail-meta-val">${d.phone}</span></div>` : ''}
+        ${d.email           ? `<div class="detail-meta-item"><span class="detail-meta-key">Էլ. փոստ</span><span class="detail-meta-val">${d.email}</span></div>` : ''}
+      </div>
+    </div>
+    <div class="detail-main">
+      ${d.quote ? `<div class="detail-card" style="border-left:3px solid var(--gold)">
+        <div style="font-size:1.05rem;font-style:italic;color:var(--text1);line-height:1.6">“${d.quote}”</div>
+      </div>` : ''}
+      ${d.bio ? `<div class="detail-card">
+        <div class="detail-card-title">Կենսագրություն</div>
+        <div style="font-size:14px;color:var(--text2);line-height:1.7;white-space:pre-wrap">${d.bio}</div>
+      </div>` : ''}
+      ${d.education ? `<div class="detail-card">
+        <div class="detail-card-title">Կրթություն և Որակավորումներ</div>
+        <div style="font-size:14px;color:var(--text2);line-height:1.7;white-space:pre-wrap">${d.education}</div>
+      </div>` : ''}
+      ${d.founding_story ? `<div class="detail-card">
+        <div class="detail-card-title">Ակումբի Հիմնադրման Պատմություն</div>
+        <div style="font-size:14px;color:var(--text2);line-height:1.7;white-space:pre-wrap">${d.founding_story}</div>
+      </div>` : ''}
+      ${d.achievements ? `<div class="detail-card">
+        <div class="detail-card-title">Ձեռքբերումներ</div>
+        <div style="font-size:14px;color:var(--text2);line-height:1.7;white-space:pre-wrap">${d.achievements}</div>
+      </div>` : ''}
+    </div>
+  </div>`;
+}
+
+function fillDirectorForm(d) {
+  document.getElementById('d-full-name').value       = d?.full_name || '';
+  document.getElementById('d-title').value            = d?.title || '';
+  document.getElementById('d-rank').value              = d?.rank || '';
+  document.getElementById('d-experience').value        = d?.experience_years || '';
+  document.getElementById('d-phone').value              = d?.phone || '';
+  document.getElementById('d-email').value              = d?.email || '';
+  document.getElementById('d-bio').value                = d?.bio || '';
+  document.getElementById('d-education').value          = d?.education || '';
+  document.getElementById('d-founding-story').value    = d?.founding_story || '';
+  document.getElementById('d-achievements').value      = d?.achievements || '';
+  document.getElementById('d-quote').value              = d?.quote || '';
+
+  const preview     = document.getElementById('director-photo-preview');
+  const placeholder = document.getElementById('director-photo-placeholder');
+  const input       = document.getElementById('director-photo-input');
+  if (input) input.value = '';
+  if (d?.photo_url) {
+    preview.src = d.photo_url; preview.style.display = 'block'; placeholder.style.display = 'none';
+  } else {
+    preview.style.display = 'none'; placeholder.style.display = 'flex';
+  }
+}
+
+function toggleDirectorEdit(forceState) {
+  const editEl = document.getElementById('director-edit');
+  const viewEl = document.getElementById('director-view');
+  const btn    = document.getElementById('director-edit-toggle-btn');
+  const goEdit = (typeof forceState === 'boolean') ? forceState : editEl.style.display === 'none';
+
+  if (goEdit) {
+    fillDirectorForm(currentDirector);
+    editEl.style.display = 'block';
+    viewEl.style.display = 'none';
+    btn.textContent = '✕ Փակել';
+  } else {
+    editEl.style.display = 'none';
+    viewEl.style.display = 'block';
+    btn.textContent = '✎ Խմբագրել';
+  }
+}
+
+async function saveDirector() {
+  const err = document.getElementById('director-form-error');
+  const suc = document.getElementById('director-form-success');
+  const btn = document.getElementById('save-director-btn');
+  err.textContent = ''; suc.textContent = '';
+
+  const fullName = document.getElementById('d-full-name').value.trim();
+  if (!fullName) { err.textContent = 'Անուն Ազգանունը պարտադիր է.'; return; }
+
+  const originalLabel = btn.innerHTML;
+  btn.innerHTML = '⏳ Պահվում է...'; btn.disabled = true;
+
+  const payload = {
+    id: 1,
+    full_name:        fullName,
+    title:             document.getElementById('d-title').value.trim()            || null,
+    rank:              document.getElementById('d-rank').value.trim()              || null,
+    experience_years:  document.getElementById('d-experience').value.trim()        || null,
+    phone:             document.getElementById('d-phone').value.trim()             || null,
+    email:             document.getElementById('d-email').value.trim()             || null,
+    bio:               document.getElementById('d-bio').value.trim()               || null,
+    education:         document.getElementById('d-education').value.trim()         || null,
+    founding_story:    document.getElementById('d-founding-story').value.trim()    || null,
+    achievements:      document.getElementById('d-achievements').value.trim()      || null,
+    quote:             document.getElementById('d-quote').value.trim()             || null,
+  };
+
+  let dbError;
+  try {
+    const { error } = await sb.from('director').upsert(payload, { onConflict: 'id' });
+    dbError = error;
+  } catch (e) { dbError = { message: e.message || 'Անսպասելի սխալ' }; }
+
+  if (dbError) {
+    err.textContent = `Սխալ: ${dbError.message}`;
+    btn.innerHTML = originalLabel; btn.disabled = false;
+    return;
+  }
+
+  await uploadDirectorPhoto();
+
+  btn.innerHTML = originalLabel; btn.disabled = false;
+  suc.textContent = 'Տնօրենի տվյալները պահված են ✓';
+  await loadDirector();
+}
+
+async function uploadDirectorPhoto() {
+  const input = document.getElementById('director-photo-input');
+  if (!input || !input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const ext  = file.name.split('.').pop();
+  const path = `director/${Date.now()}.${ext}`;
+  const { error: upErr } = await sb.storage.from('director-photos').upload(path, file, { upsert: true });
+  if (upErr) { console.error('Director photo upload error:', upErr); return; }
+  const { data: { publicUrl } } = sb.storage.from('director-photos').getPublicUrl(path);
+  await sb.from('director').update({ photo_url: publicUrl }).eq('id', 1);
 }
