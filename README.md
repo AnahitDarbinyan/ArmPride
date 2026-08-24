@@ -23,10 +23,8 @@ A full-stack web application for managing a sports academy's operations — dire
 ## 🚀 Getting Started
 
 ```bash
-git clone https://github.com/<your-username>/armfighting.git
-cd armfighting
-# Set up your own Supabase project and add credentials to config.js
-# Open index.html or serve with a local server
+git clone https://github.com/AnahitDarbinyan/ArmPride/
+cd ArmPride
 ```
 
 ## 📌 Why I Built This
