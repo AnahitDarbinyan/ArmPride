@@ -2,10 +2,10 @@
 
 A full-stack web application for managing a sports academy's operations — director, coach, and athlete profiles, competition tracking, and document management — built from scratch.
 
-![screenshot](docs/screenshot.png) <!-- replace with an actual screenshot -->
+![screenshot](demo.png) <!-- replace with an actual screenshot -->
 
 ## 🔗 Live Demo
-[link here] <!-- add if deployed -->
+[[link here]](https://arm-pride.vercel.app/index.html) <!-- add if deployed -->
 
 ## ✨ Features
 
@@ -20,17 +20,6 @@ A full-stack web application for managing a sports academy's operations — dire
 - **Frontend:** JavaScript, HTML, CSS (vanilla — no framework)
 - **Backend / Database:** [Supabase](https://supabase.com/) (PostgreSQL, Auth, Storage)
 
-## 🏗️ Architecture
-
-```
-├── /pages          # HTML pages per feature (profiles, competitions, login)
-├── /js             # Client-side logic, Supabase client & queries
-├── /assets         # Static assets
-└── /supabase       # Table schemas / storage config
-```
-
-*(Adjust to match your actual folder structure.)*
-
 ## 🚀 Getting Started
 
 ```bash
@@ -43,7 +32,3 @@ cd armfighting
 ## 📌 Why I Built This
 
 Built to solve a real operational need for a sports academy — moving athlete/coach records, document tracking, and competition history off spreadsheets and into a proper managed system. Built solo, from schema design through UI.
-
-## 📄 License
-
-[MIT](LICENSE) <!-- or your choice -->
