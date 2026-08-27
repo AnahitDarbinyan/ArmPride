@@ -383,6 +383,7 @@ function applyAthleteFilters() {
   const year   = document.getElementById('filter-year')?.value   || '';
   const month  = document.getElementById('filter-month')?.value  || '';
   const status = document.getElementById('filter-status')?.value || '';
+  const school = document.getElementById('school-filter')?.value || '';
 
   let filtered = allAthletes.filter(a => {
     // search
@@ -398,6 +399,8 @@ function applyAthleteFilters() {
     if (coach  && a.coach  !== coach)  return false;
     // status
     if (status && a.status !== status) return false;
+    // school
+    if (school && a.school !== school) return false;
     // birth year
     if (year && a.birthdate) {
       const y = new Date(a.birthdate).getFullYear();
